@@ -15,13 +15,13 @@ partial class Build
         .Requires(() => NugetPrivateApiKey)
         .Executes(() =>
         {
-            // foreach (var package in PrivateArtifactsDirectory.GlobFiles("*.nupkg"))
-            // {
-            //     DotNetNuGetPush(settings => settings
-            //         .SetTargetPath(package)
-            //         .SetSource(NugetPrivateSource)
-            //         .SetApiKey(NugetPrivateApiKey));
-            // }
+            foreach (var package in PrivateArtifactsDirectory.GlobFiles("*.nupkg"))
+            {
+                DotNetNuGetPush(settings => settings
+                    .SetTargetPath(package)
+                    .SetSource(NugetPrivateSource)
+                    .SetApiKey(NugetPrivateApiKey));
+            }
 
             foreach (var package in PublicArtifactsDirectory.GlobFiles("*.nupkg"))
             {
