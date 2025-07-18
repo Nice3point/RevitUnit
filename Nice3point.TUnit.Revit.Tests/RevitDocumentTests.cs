@@ -1,5 +1,4 @@
-﻿using Autodesk.Revit.DB;
-using Nice3point.TUnit.Revit.Executors;
+﻿using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests;
@@ -30,7 +29,7 @@ public sealed class RevitDocumentTests : RevitApiTest
         var elements = new FilteredElementCollector(_documentFile)
             .WhereElementIsElementType()
             .ToElements();
-        
+
         using (Assert.Multiple())
         {
             await Assert.That(elements).IsNotEmpty();
@@ -46,8 +45,15 @@ public sealed class RevitDocumentTests : RevitApiTest
         var elementIds = new FilteredElementCollector(_documentFile)
             .WhereElementIsNotElementType()
             .OfCategory(BuiltInCategory.OST_Dimensions)
+#if REVIT2025_OR_GREATER
             .OfClass(typeof(RadialDimension))
             .ToElementIds();
+#else
+            .Cast<Dimension>()
+            .Where(dimension => dimension.DimensionShape == DimensionShape.Radial)
+            .Select(dimension => dimension.Id)
+            .ToList();
+#endif
 
         using var transaction = new Transaction(_documentFile);
         transaction.Start("Delete dimensions");
