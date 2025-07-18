@@ -1,0 +1,39 @@
+﻿using Nice3point.Revit.Injector.Helpers;
+using Nice3point.TUnit.Revit.Executors;
+using TUnit.Core.Executors;
+
+namespace Nice3point.TUnit.Revit;
+
+/// Represents a base class for testing Revit API functionality using the test framework.
+/// This class sets up and tears down a Revit session required for running tests.
+public class RevitApiTest : RevitApplicationTest
+{
+    static RevitApiTest()
+    {
+        RevitHelper.ResolveAssemblies();
+    }
+
+    /// <summary>
+    /// Sets up the Revit session by initializing the connection to the Revit API.
+    /// This method is executed before the test session begins, ensuring that the
+    /// necessary prerequisites for the tests interacting with the Revit environment are satisfied.
+    /// </summary>
+    [Before(TestSession)]
+    [HookExecutor<RevitThreadExecutor>]
+    public static void RevitSessionSetup()
+    {
+        InitializeRevitConnection();
+    }
+
+    /// <summary>
+    /// Cleans up the Revit session by terminating the connection to the Revit API.
+    /// This method is executed after the test session concludes, ensuring that
+    /// resources and connections related to the Revit environment are properly released.
+    /// </summary>
+    [After(TestSession)]
+    [HookExecutor<RevitThreadExecutor>]
+    public static void RevitSessionCleanup()
+    {
+        TerminateRevitConnection();
+    }
+}
