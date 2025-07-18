@@ -17,11 +17,11 @@
 
         PackageVersionsMap = new()
         {
-            { "Release R22", "2022.0.0" },
-            { "Release R23", "2023.0.0" },
-            { "Release R24", "2024.0.0" },
-            { "Release R25", "2025.0.0" },
-            { "Release R26", "2026.0.0" }
+            { "Release R22", "2022.0.1" },
+            { "Release R23", "2023.0.1" },
+            { "Release R24", "2024.0.1" },
+            { "Release R25", "2025.0.1" },
+            { "Release R26", "2026.0.1" }
         };
     }
 }
