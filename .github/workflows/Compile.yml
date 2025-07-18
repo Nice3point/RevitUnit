@@ -22,3 +22,5 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
       - name: Run Nuke Build
         run: ./.nuke/build.cmd
+        env:
+          NICE3POINT_PACKAGES_API_KEY: ${{ secrets.NICE3POINT_PACKAGES_API_KEY }}
