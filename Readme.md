@@ -5,7 +5,10 @@
     </picture>
 </p>
 
-A testing library for Revit add-ins powered by the [TUnit](https://github.com/thomhurst/TUnit) testing framework.
+## Testing Framework for .Revit
+
+Write unit tests for your Revit add-ins using the [TUnit](https://github.com/thomhurst/TUnit) testing framework with source-generated tests,
+parallel execution, and Native AOT support.
 
 ## Installation
 
