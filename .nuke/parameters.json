@@ -1,5 +1,5 @@
 {
   "$schema": "./build.schema.json",
-  "Solution": "RevitInjector.sln",
+  "Solution": "RevitUnit.sln",
   "Verbosity": "Normal"
 }
