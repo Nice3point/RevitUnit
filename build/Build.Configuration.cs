@@ -1,6 +1,8 @@
 ﻿sealed partial class Build
 {
     readonly AbsolutePath ArtifactsDirectory = RootDirectory / "output";
+    AbsolutePath PrivateArtifactsDirectory => ArtifactsDirectory / "private";
+    AbsolutePath PublicArtifactsDirectory => ArtifactsDirectory / "public";
 
     [Parameter] string ReleaseVersion;
 

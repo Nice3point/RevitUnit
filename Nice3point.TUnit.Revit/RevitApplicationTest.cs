@@ -4,10 +4,10 @@ using Nice3point.Revit.Injector;
 namespace Nice3point.TUnit.Revit;
 
 /// <summary>
-/// Represents a base class for testing Revit-based applications inside the test framework.
-/// This class provides methods to initialize and terminate the connection with the Revit application.
+/// Represents an abstract base class for tests that require interaction with the Revit application environment.
+/// Provides methods to initialize and terminate the connection to the Revit application.
 /// </summary>
-public class RevitApplicationTest
+public abstract class RevitApplicationTest
 {
     private static Injector? _injector;
 

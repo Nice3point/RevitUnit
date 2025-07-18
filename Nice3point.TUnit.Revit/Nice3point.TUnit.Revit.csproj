@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <UseWpf>true</UseWpf>
+        <OutputType>Library</OutputType>
         <Configurations>Debug R22;Debug R23;Debug R24;Debug R25;Debug R26</Configurations>
         <Configurations>$(Configurations);Release R22;Release R23;Release R24;Release R25;Release R26</Configurations>
     </PropertyGroup>
@@ -21,12 +22,21 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <IncludeSymbols>false</IncludeSymbols>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1" PrivateAssets="all"/>
-        <PackageReference Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*"/>
         <PackageReference Include="TUnit" Version="0.25.21"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PublishProfile)' == 'Private' OR '$(PublishProfile)' == ''">
+        <PackageReference Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PublishProfile)' == 'Public'">
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*"/>
+        <PackageReference Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>

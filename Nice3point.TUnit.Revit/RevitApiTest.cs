@@ -4,8 +4,11 @@ using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit;
 
-/// Represents a base class for testing Revit API functionality using the test framework.
-/// This class sets up and tears down a Revit session required for running tests.
+/// <summary>
+/// Represents a test class for executing tests within the Revit environment.
+/// This class provides dependency resolution, setup and cleanup methods for initializing and terminating
+/// the connection to the Revit API before and after the test session.
+/// </summary>
 public class RevitApiTest : RevitApplicationTest
 {
     static RevitApiTest()

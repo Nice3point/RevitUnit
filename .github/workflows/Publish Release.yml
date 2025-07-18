@@ -25,4 +25,5 @@ jobs:
         run: ./.nuke/build.cmd PublishNuget
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           NICE3POINT_PACKAGES_API_KEY: ${{ secrets.NICE3POINT_PACKAGES_API_KEY }}

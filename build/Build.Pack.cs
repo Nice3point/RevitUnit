@@ -12,15 +12,12 @@ partial class Build
             try
             {
                 var packConfigurations = GlobBuildConfigurations()
-                    .Where(configuration => configuration.Contains(" R", StringComparison.OrdinalIgnoreCase));
+                    .Where(configuration => configuration.StartsWith("Release", StringComparison.OrdinalIgnoreCase));
 
                 foreach (var configuration in packConfigurations)
                 {
-                    DotNetPack(settings => settings
-                        .SetConfiguration(configuration)
-                        .SetVersion(GetPackVersion(configuration))
-                        .SetOutputDirectory(ArtifactsDirectory)
-                        .SetVerbosity(DotNetVerbosity.minimal));
+                    PackPrivatePackage(configuration);
+                    PackPublicPackage(configuration);
                 }
             }
             finally
@@ -28,6 +25,27 @@ partial class Build
                 RestoreReadme(readme);
             }
         });
+
+    void PackPrivatePackage(string configuration)
+    {
+        DotNetPack(settings => settings
+            .SetConfiguration(configuration)
+            .SetVersion(GetPackVersion(configuration))
+            .SetOutputDirectory(PrivateArtifactsDirectory)
+            .SetVerbosity(DotNetVerbosity.minimal)
+            .SetProperty("PublishProfile", "Private"));
+    }
+
+    void PackPublicPackage(string configuration)
+    {
+        DotNetPack(settings => settings
+            .SetConfiguration(configuration)
+            .SetVersion(GetPackVersion(configuration))
+            .SetOutputDirectory(PublicArtifactsDirectory)
+            .SetVerbosity(DotNetVerbosity.minimal)
+            .SetProperty("PublishProfile", "Public")
+            .SetProperty("ProduceOnlyReferenceAssembly", true));
+    }
 
     string GetPackVersion(string configuration)
     {
