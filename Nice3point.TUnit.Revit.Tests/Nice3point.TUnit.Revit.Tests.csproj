@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <UseWpf>true</UseWpf>
         <OutputType>Exe</OutputType>
         <Configurations>Debug R22;Debug R23;Debug R24;Debug R25;Debug R26</Configurations>
         <Configurations>$(Configurations);Release R22;Release R23;Release R24;Release R25;Release R26</Configurations>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1" PrivateAssets="all"/>
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Nice3point.TUnit.Revit\Nice3point.TUnit.Revit.csproj" />

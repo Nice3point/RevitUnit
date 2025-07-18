@@ -15,6 +15,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageIcon>images\PackageIcon.png</PackageIcon>
         <PackageLicenseFile>License.md</PackageLicenseFile>
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -31,6 +32,7 @@
     <ItemGroup>
         <None Include="..\.nuget\PackageIcon.png" PackagePath="images\" Pack="true" Visible="false"/>
         <None Include="..\License.md" PackagePath="" Pack="true" Visible="false"/>
+        <None Include="..\..\Readme.md" PackagePath="" Pack="true" Visible="false"/>
     </ItemGroup>
 
 </Project>

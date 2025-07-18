@@ -1,13 +1,24 @@
-﻿sealed partial class Build
+﻿using Nuke.Common.ProjectModel;
+
+sealed partial class Build
 {
     Target Clean => _ => _
         .OnlyWhenStatic(() => IsLocalBuild)
         .Executes(() =>
         {
-            CleanDirectory(ArtifactsDirectory);
+            Project[] excludedProjects =
+            [
+                Solution.Build
+            ];
 
-            foreach (var project in Solution.AllProjects.Where(project => project != Solution.Build))
+            CleanDirectory(ArtifactsDirectory);
+            foreach (var project in Solution.AllProjects)
+            {
+                if (excludedProjects.Contains(project)) continue;
+
                 CleanDirectory(project.Directory / "bin");
+                CleanDirectory(project.Directory / "obj");
+            }
         });
 
     static void CleanDirectory(AbsolutePath path)
