@@ -5,9 +5,7 @@
     </picture>
 </p>
 
-## Unit testing framework for Revit API
-
-This library provides a testing shell for Revit add-ins using a Microsoft testing platform.
+A testing library for Revit add-ins powered by the [TUnit](https://github.com/thomhurst/TUnit) testing framework.
 
 ## Installation
 
@@ -21,7 +19,7 @@ The packages are compiled for specific versions of Revit. To support different v
 ```
 
 > [!WARNING]   
-> The public version of the package does not contain implementation for the framework.
+> The public version of this package does not contain implementation for the framework.
 > An open source version is not currently planned due to Autodesk export regulations.
 
 ## Writing your first test
@@ -53,7 +51,7 @@ This is your runnable test. The `[TestExecutor<RevitThreadExecutor>]` attribute 
 
 ## Running your tests
 
-This library uses TUnit, which is built on top of the Microsoft.Testing.Platform. Combined with source-generated tests, running your tests is available in multiple ways.
+**TUnit** is built on top of the Microsoft.Testing.Platform. Combined with source-generated tests, running your tests is available in multiple ways.
 
 ### dotnet run
 
