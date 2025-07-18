@@ -4,7 +4,7 @@ using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
-public sealed class RevitDocumentTest : RevitApiTest
+public sealed class RevitDocumentTests : RevitApiTest
 {
     private static Document _documentFile = null!;
 
@@ -23,8 +23,9 @@ public sealed class RevitDocumentTest : RevitApiTest
     }
 
     [Test]
+    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
-    public async Task ModelIsNotEmpty()
+    public async Task FilteredElementCollector_ElementTypes_ValidAssignable()
     {
         var elements = new FilteredElementCollector(_documentFile)
             .WhereElementIsElementType()
@@ -38,9 +39,21 @@ public sealed class RevitDocumentTest : RevitApiTest
     }
 
     [Test]
+    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
-    public async Task ModelTitleIsNotEmpty()
+    public async Task Delete_Dimensions_ElementsWithDependenciesDeleted()
     {
-        await Assert.That(_documentFile.Title).IsNotEmpty();
+        var elementIds = new FilteredElementCollector(_documentFile)
+            .WhereElementIsNotElementType()
+            .OfCategory(BuiltInCategory.OST_Dimensions)
+            .OfClass(typeof(RadialDimension))
+            .ToElementIds();
+
+        using var transaction = new Transaction(_documentFile);
+        transaction.Start("Delete dimensions");
+        var deletedElements = _documentFile.Delete(elementIds);
+        transaction.Commit();
+
+        await Assert.That(deletedElements.Count).IsGreaterThanOrEqualTo(elementIds.Count);
     }
 }
