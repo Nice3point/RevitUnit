@@ -34,4 +34,28 @@ partial class Build
                     .SetApiKey(NugetPublicApiKey));
             }
         });
+
+    Target DeleteNuGet => _ => _
+        .Requires(() => NugetPublicApiKey)
+        .Requires(() => NugetPrivateApiKey)
+        .OnlyWhenStatic(() => IsLocalBuild)
+        .Executes(() =>
+        {
+            foreach (var versionPair in PackageVersionsMap)
+            {
+                DotNetNuGetDelete(settings => settings
+                    .SetPackageId("Nice3point.TUnit.Revit")
+                    .SetPackageVersion(versionPair.Value)
+                    .SetSource(NugetPrivateSource)
+                    .SetApiKey(NugetPrivateApiKey)
+                    .EnableNonInteractive());
+
+                DotNetNuGetDelete(settings => settings
+                    .SetPackageId("Nice3point.TUnit.Revit")
+                    .SetPackageVersion(versionPair.Value)
+                    .SetSource(NugetPublicSource)
+                    .SetApiKey(NugetPublicApiKey)
+                    .EnableNonInteractive());
+            }
+        });
 }
