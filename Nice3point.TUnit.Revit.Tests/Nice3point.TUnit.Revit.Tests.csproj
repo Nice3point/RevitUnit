@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Nice3point.TUnit.Revit\Nice3point.TUnit.Revit.csproj" />
+        <ProjectReference Include="..\Nice3point.TUnit.Revit\Nice3point.TUnit.Revit.csproj"/>
     </ItemGroup>
 
 </Project>
