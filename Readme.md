@@ -54,7 +54,7 @@ This is your runnable test. The `[TestExecutor<RevitThreadExecutor>]` attribute 
 
 ## Running your tests
 
-**TUnit** is built on top of the Microsoft.Testing.Platform. Combined with source-generated tests, running your tests is available in multiple ways.
+**TUnit** is built on top of the **Microsoft.Testing.Platform**. Combined with source-generated tests, running your tests is available in multiple ways.
 
 ### dotnet run
 
@@ -89,6 +89,13 @@ or
 cd 'C:/Your/Test/Directory/bin/Release R26/'
 dotnet YourTestProject.dll
 ```
+
+### JetBrains Rider
+
+The [Enable Testing Platform support option](https://www.jetbrains.com/help/rider/Reference__Options__Tools__Unit_Testing__VSTest.html) must be selected in Settings > Build,
+Execution, Deployment > Unit Testing > VSTest.
+
+![](https://github.com/user-attachments/assets/d64c58f6-9223-4bdb-a513-c663daf4e0c1)
 
 ## Application testing
 
