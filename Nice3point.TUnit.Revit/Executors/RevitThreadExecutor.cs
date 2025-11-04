@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows.Threading;
 
 namespace Nice3point.TUnit.Revit.Executors;
 
@@ -45,15 +44,15 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
             //Create a new Dispatcher
             _ = Dispatcher.CurrentDispatcher;
             dispatcherReadyEvent.Set();
-            
+
             //Borrow a thread
             Dispatcher.Run();
         });
-            
+
         uiThread.SetApartmentState(ApartmentState.STA);
         uiThread.IsBackground = true;
         uiThread.Start();
-            
+
         dispatcherReadyEvent.Wait();
         return Dispatcher.FromThread(uiThread)!;
     }
