@@ -3,6 +3,7 @@ using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
+[NotInParallel(Order = 2)]
 public sealed class RevitDocumentTests : RevitApiTest
 {
     private static Document _documentFile = null!;
@@ -22,7 +23,6 @@ public sealed class RevitDocumentTests : RevitApiTest
     }
 
     [Test]
-    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
     public async Task FilteredElementCollector_ElementTypes_ValidAssignable()
     {
@@ -38,7 +38,6 @@ public sealed class RevitDocumentTests : RevitApiTest
     }
 
     [Test]
-    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
     public async Task Delete_Dimensions_ElementsWithDependenciesDeleted()
     {

@@ -3,6 +3,7 @@ using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
+[NotInParallel(Order = 1)]
 public sealed class RevitApplicationTests : RevitApiTest
 {
     [Test]
