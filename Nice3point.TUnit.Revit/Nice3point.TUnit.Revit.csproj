@@ -27,7 +27,7 @@
 
     <ItemGroup>
         <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1" PrivateAssets="all"/>
-        <PackageReference Include="TUnit" Version="1.1.27"/>
+        <PackageReference Include="TUnit" Version="1.2.3"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(PublishProfile)' == 'Private' OR '$(PublishProfile)' == ''">
