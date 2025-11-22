@@ -26,17 +26,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="3.0.1" PrivateAssets="all"/>
-        <PackageReference Include="TUnit" Version="1.2.11"/>
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" PrivateAssets="all"/>
+        <PackageReference Include="TUnit"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(PublishProfile)' == 'Private' OR '$(PublishProfile)' == ''">
-        <PackageReference Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*"/>
+        <PackageReference Include="Nice3point.Revit.Injector"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(PublishProfile)' == 'Public'">
-        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*"/>
-        <PackageReference Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Injector" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>

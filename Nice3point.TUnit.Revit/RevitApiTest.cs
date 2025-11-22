@@ -1,5 +1,4 @@
-﻿using Nice3point.Revit.Injector.Helpers;
-using Nice3point.TUnit.Revit.Executors;
+﻿using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit;
@@ -11,11 +10,6 @@ namespace Nice3point.TUnit.Revit;
 /// </summary>
 public class RevitApiTest : RevitApplicationTest
 {
-    static RevitApiTest()
-    {
-        RevitHelper.ResolveAssemblies();
-    }
-
     /// <summary>
     /// Sets up the Revit session by initializing the connection to the Revit API.
     /// This method is executed before the test session begins, ensuring that the

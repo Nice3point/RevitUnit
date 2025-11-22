@@ -1,0 +1,39 @@
+﻿<Project>
+
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Revit Platform -->
+        <PackageVersion Include="Nice3point.Revit.Build.Tasks" Version="3.0.1"/>
+        <PackageVersion Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
+        <PackageVersion Include="Nice3point.Revit.Api.RevitNET" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
+        <PackageVersion Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
+
+        <!-- Build Automation -->
+        <PackageVersion Include="Sourcy.DotNet" Version="0.7.9"/>
+        <PackageVersion Include="ModularPipelines" Version="2.48.30"/>
+        <PackageVersion Include="ModularPipelines.Git" Version="2.48.30"/>
+        <PackageVersion Include="ModularPipelines.GitHub" Version="2.48.30"/>
+        <PackageVersion Include="ModularPipelines.DotNet" Version="2.48.30"/>
+        <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.0"/>
+        <PackageVersion Include="ILRepack" Version="2.0.44"/>
+
+        <!-- Testing -->
+        <PackageVersion Include="TUnit" Version="1.2.11"/>
+        <PackageVersion Include="Shouldly" Version="4.3.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0"/>
+
+        <!-- Development Tools -->
+        <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2"/>
+        <PackageVersion Include="Microsoft.VisualStudio.SolutionPersistence" Version="1.0.52"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <GlobalPackageReference Include="Polyfill" Version="9.2.0"/>
+    </ItemGroup>
+
+</Project>

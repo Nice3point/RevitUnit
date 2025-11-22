@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows.Threading;
 
 namespace Nice3point.TUnit.Revit.Executors;
 
@@ -28,7 +29,7 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
             }
         });
 
-#if NETCOREAPP
+#if NET
         await ValueTask.CompletedTask;
 #else
         await new ValueTask();
