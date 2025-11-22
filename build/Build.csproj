@@ -1,27 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Nullable>disable</Nullable>
         <OutputType>Exe</OutputType>
-        <Platforms>AnyCPU</Platforms>
-        <NoWarn>CS0649;CS0169</NoWarn>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>true</ImplicitUsings>
-        <TargetFramework>net9.0</TargetFramework>
-        <NukeRootDirectory>..</NukeRootDirectory>
-        <NukeScriptDirectory>..</NukeScriptDirectory>
-        <NukeTelemetryVersion>1</NukeTelemetryVersion>
+        <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Nuke.Common" Version="9.0.4"/>
-        <PackageDownload Include="JetBrains.Refasmer.CliTool" Version="[2.0.2]"/>
+        <PackageReference Include="Sourcy.DotNet"/>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="ModularPipelines"/>
+        <PackageReference Include="ModularPipelines.Git"/>
+        <PackageReference Include="ModularPipelines.GitHub"/>
+        <PackageReference Include="ModularPipelines.DotNet"/>
+        <PackageReference Include="JetBrains.Annotations"/>
+        <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Nuke.Common"/>
-        <Using Include="Nuke.Common.IO"/>
-        <Using Include="Serilog"/>
+        <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
 </Project>
