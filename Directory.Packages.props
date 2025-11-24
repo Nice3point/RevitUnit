@@ -33,7 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <GlobalPackageReference Include="Polyfill" Version="9.2.0"/>
+        <GlobalPackageReference Include="Polyfill" Version="9.3.0"/>
     </ItemGroup>
 
 </Project>
