@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Windows.Threading;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Nice3point.TUnit.Revit.Executors;
 
@@ -13,7 +13,7 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </remarks>
 public sealed class RevitThreadExecutor : GenericAbstractExecutor
 {
-    private static Dispatcher? _dispatcher;
+    private static BlockingCollection<Action>? _executionQueue;
     private static readonly Lock InitializationLock = new();
 
     /// <summary>
@@ -22,13 +22,13 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
     /// </summary>
     /// <param name="action">The asynchronous action to execute on the Revit thread dispatcher.</param>
     /// <returns>A <see cref="ValueTask"/> that represents the asynchronous execution operation.</returns>
-    protected sealed override async ValueTask ExecuteAsync(Func<ValueTask> action)
+    protected override async ValueTask ExecuteAsync(Func<ValueTask> action)
     {
         EnsureThreadInitialized();
 
         var tcs = new TaskCompletionSource<object?>();
 
-        _ = _dispatcher!.InvokeAsync(() => ExecuteAsyncActionWithMessagePump(action, tcs), DispatcherPriority.Normal);
+        _executionQueue!.Add(() => ExecuteAsyncActionWithMessagePump(action, tcs));
 
         await tcs.Task;
     }
@@ -38,17 +38,20 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
     {
         lock (InitializationLock)
         {
-            if (_dispatcher is not null) return;
+            if (_executionQueue is not null) return;
 
+            _executionQueue = new BlockingCollection<Action>();
             using var threadReadyEvent = new ManualResetEventSlim(false);
 
             var thread = new Thread(() =>
             {
                 try
                 {
-                    Initialize();
                     threadReadyEvent.Set();
-                    Dispatcher.Run();
+                    foreach (var executeAction in _executionQueue.GetConsumingEnumerable())
+                    {
+                        executeAction();
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -60,8 +63,6 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
             thread.Start();
 
             threadReadyEvent.Wait();
-
-            _dispatcher = Dispatcher.FromThread(thread);
         }
     }
 
@@ -163,12 +164,6 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
     {
         thread.SetApartmentState(ApartmentState.STA);
         thread.IsBackground = true;
-    }
-
-    private static void Initialize()
-    {
-        // Create Dispatcher for this thread
-        _ = Dispatcher.CurrentDispatcher;
     }
 }
 
