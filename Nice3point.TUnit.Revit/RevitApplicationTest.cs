@@ -12,7 +12,7 @@ public abstract class RevitApplicationTest
     private static Injector? _injector;
 
     /// <summary>
-    ///     Represents the database level Autodesk Revit Application, providing access to documents, options and other application wide data and settings.
+    /// Represents the database level Autodesk Revit Application, providing access to documents, options and other application wide data and settings.
     /// </summary>
     protected static Application Application { get; private set; } = null!;
 
@@ -31,6 +31,6 @@ public abstract class RevitApplicationTest
     /// </summary>
     protected static void TerminateRevitConnection()
     {
-        _injector!.EjectApplication();
+        _injector?.EjectApplication();
     }
 }
