@@ -27,7 +27,7 @@
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
 
         <!-- Development Tools -->
-        <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2"/>
+        <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4"/>
         <PackageVersion Include="Microsoft.VisualStudio.SolutionPersistence" Version="1.0.52"/>
     </ItemGroup>
 
