@@ -3,7 +3,6 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <PlatformTarget>x64</PlatformTarget>
         <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
 
@@ -30,6 +29,11 @@
     <PropertyGroup Condition="$(Configuration.Contains('R26'))">
         <RevitVersion>2026</RevitVersion>
         <TargetFramework>net8.0-windows</TargetFramework>
+    </PropertyGroup>
+
+    <!--    https://youtrack.jetbrains.com/issue/RIDER-129935/Rider-does-not-discover-TUnit-tests-if-there-are-spaces-in-the-project-path   -->
+    <PropertyGroup>
+        <OutputPath>bin\$(Configuration.Replace(' ', ''))\</OutputPath>
     </PropertyGroup>
 
 </Project>
