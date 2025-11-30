@@ -13,6 +13,7 @@ using Sourcy.DotNet;
 namespace Build.Modules;
 
 [DependsOn<CleanProjectsModule>]
+[DependsOn<UpdateNugetSourceModule>]
 [DependsOn<ParseSolutionConfigurationsModule>]
 public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOptions<PackOptions> packOptions) : Module
 {

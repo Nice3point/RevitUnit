@@ -8,6 +8,7 @@ using Sourcy.DotNet;
 
 namespace Build.Modules;
 
+[DependsOn<UpdateNugetSourceModule>]
 [DependsOn<ParseSolutionConfigurationsModule>]
 public sealed class CompileProjectModule : Module
 {

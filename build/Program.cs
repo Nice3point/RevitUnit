@@ -24,6 +24,7 @@ await PipelineHostBuilder.Create()
         }
 
         collection.AddModule<ParseSolutionConfigurationsModule>();
+        collection.AddModule<UpdateNugetSourceModule>();
 
         if (args.Length == 0)
         {
