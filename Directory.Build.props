@@ -4,6 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
+        <NoWarn>$(NoWarn);NU1507</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(Configuration.Contains('R21'))">
