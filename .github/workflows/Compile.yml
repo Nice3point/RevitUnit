@@ -31,4 +31,5 @@ jobs:
         run: dotnet run -c Release
         working-directory: "build"
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOTNET_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
