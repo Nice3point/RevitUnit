@@ -8,7 +8,7 @@
 ## Testing Framework for .Revit
 
 Write unit tests for your Revit add-ins using the [TUnit](https://github.com/thomhurst/TUnit) testing framework with source-generated tests,
-parallel execution, and Native AOT support.
+parallel execution, and Microsoft.Testing.Platform support.
 
 ## Installation
 
@@ -20,10 +20,6 @@ The packages are compiled for specific versions of Revit. To support different v
 
 <PackageReference Include="Nice3point.TUnit.Revit" Version="$(RevitVersion).*"/>
 ```
-
-> [!WARNING]   
-> The public version of this package does not contain implementation for the framework.
-> An open source version is not currently planned due to Autodesk export regulations.
 
 ## Writing your first test
 
@@ -92,8 +88,8 @@ dotnet YourTestProject.dll
 
 ### JetBrains Rider
 
-The [Enable Testing Platform support option](https://www.jetbrains.com/help/rider/Reference__Options__Tools__Unit_Testing__VSTest.html) must be selected in Settings > Build,
-Execution, Deployment > Unit Testing > VSTest.
+The [Enable Testing Platform support option](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro?tabs=dotnetcli) must be selected in
+Settings > Build, Execution, Deployment > Unit Testing > Testing Platform.
 
 ![](https://github.com/user-attachments/assets/d64c58f6-9223-4bdb-a513-c663daf4e0c1)
 
@@ -106,11 +102,11 @@ public sealed class RevitApplicationTests : RevitApiTest
 {
     [Test]
     [TestExecutor<RevitThreadExecutor>]
-    public async Task Documents_Startup_IsEmpty()
+    public async Task Cities_Startup_IsNotEmpty()
     {
-        var documents = Application.Documents.Cast<Document>();
-        
-        await Assert.That(documents).IsEmpty();
+        var cities = Application.Cities.Cast<City>();
+
+        await Assert.That(cities).IsNotEmpty();
     }
 
     [Test]
@@ -118,7 +114,7 @@ public sealed class RevitApplicationTests : RevitApiTest
     public async Task Create_XYZ_ValidDistance()
     {
         var point = Application.Create.NewXYZ(3, 4, 5);
-        
+
         await Assert.That(point.DistanceTo(XYZ.Zero)).IsEqualTo(7).Within(0.1);
     }
 }
@@ -137,7 +133,7 @@ public sealed class RevitDocumentTests : RevitApiTest
     [HookExecutor<RevitThreadExecutor>]
     public static void Setup()
     {
-        _documentFile = Application.OpenDocumentFile($@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples\rac_basic_sample_family.rfa");
+        _documentFile = Application.OpenDocumentFile($@"C:\Program Files\Autodesk\Revit 2025\Samples\sample_family.rfa");
     }
 
     [After(Class)]
