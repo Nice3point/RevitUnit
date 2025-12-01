@@ -15,7 +15,7 @@ public sealed class CleanProjectsModule(IOptions<PackOptions> packOptions) : Mod
         var outputDirectory = context.Git().RootDirectory.GetFolder(packOptions.Value.OutputDirectory);
         if (outputDirectory.Exists)
         {
-            outputDirectory.Delete();
+            outputDirectory.Clean();
         }
 
         return await NothingAsync();

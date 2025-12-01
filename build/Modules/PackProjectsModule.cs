@@ -12,8 +12,7 @@ using Sourcy.DotNet;
 
 namespace Build.Modules;
 
-[DependsOn<CleanProjectsModule>]
-[DependsOn<UpdateNugetSourceModule>]
+[DependsOn<RepackInjectorModule>]
 [DependsOn<ParseSolutionConfigurationsModule>]
 public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOptions<PackOptions> packOptions) : Module
 {
@@ -32,7 +31,7 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
             await SubModule(configuration, async () =>
             {
                 await PackPrivateAsync(context, configuration, privateOutputFolder.Path, cancellationToken);
-                await PackPublicAsync(context, configuration, publicOutputFolder.Path, cancellationToken);
+                // await PackPublicAsync(context, configuration, publicOutputFolder.Path, cancellationToken);
             });
         }
 
@@ -44,6 +43,16 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
         buildOptions.Value.Versions
             .TryGetValue(configuration, out var version)
             .ShouldBeTrue($"Can't find pack version for configuration: {configuration}");
+
+        await context.DotNet().Restore(new DotNetRestoreOptions
+        {
+            Path = Projects.Nice3point_TUnit_Revit.FullName,
+            Verbosity = Verbosity.Minimal,
+            Properties = new List<KeyValue>
+            {
+                ("Configuration", configuration)
+            }
+        }, cancellationToken);
 
         return await context.DotNet().Pack(new DotNetPackOptions
         {
@@ -65,6 +74,16 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
         buildOptions.Value.Versions
             .TryGetValue(configuration, out var version)
             .ShouldBeTrue($"Can't find pack version for configuration: {configuration}");
+
+        await context.DotNet().Restore(new DotNetRestoreOptions
+        {
+            Path = Projects.Nice3point_TUnit_Revit.FullName,
+            Verbosity = Verbosity.Minimal,
+            Properties = new List<KeyValue>
+            {
+                ("Configuration", configuration)
+            }
+        }, cancellationToken);
 
         return await context.DotNet().Pack(new DotNetPackOptions
         {

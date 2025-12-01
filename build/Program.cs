@@ -25,17 +25,14 @@ await PipelineHostBuilder.Create()
 
         collection.AddModule<ParseSolutionConfigurationsModule>();
         collection.AddModule<UpdateNugetSourceModule>();
-
-        if (args.Length == 0)
-        {
-            collection.AddModule<CompileProjectModule>();
-        }
+        collection.AddModule<CompileProjectModule>();
 
         if (args.Contains("pack"))
         {
             collection.AddOptions<PackOptions>().Bind(context.Configuration.GetSection("Pack")).ValidateDataAnnotations();
 
             collection.AddModule<CleanProjectsModule>();
+            collection.AddModule<RepackInjectorModule>();
             collection.AddModule<PackProjectsModule>();
         }
 

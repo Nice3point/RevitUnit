@@ -26,22 +26,22 @@ public sealed class PublishNugetModule(IOptions<PackOptions> packOptions, IOptio
             .GetFolder(packOptions.Value.PublicOutputDirectory);
 
         var privateTargetPackages = privateOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
-        var publicTargetPackages = publicOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
+        // var publicTargetPackages = publicOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
         privateTargetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
-        publicTargetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
+        // publicTargetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
 
         await privateTargetPackages
             .SelectAsync(async file => await PushAsync(context, file, nuGetOptions.Value.PrivateSource, nuGetOptions.Value.PrivateApiKey, cancellationToken), cancellationToken)
             .ProcessInParallel();
 
-        await publicTargetPackages
-            .SelectAsync(async file =>
-            {
-                file.Length.ShouldBeLessThan(40 * 1024, "File length > 40 kb, check assembly trimming. Public distribution of source code should be avoided");
-
-                return await PushAsync(context, file, nuGetOptions.Value.PublicSource, nuGetOptions.Value.PublicApiKey, cancellationToken);
-            }, cancellationToken)
-            .ProcessInParallel();
+        // await publicTargetPackages
+        //     .SelectAsync(async file =>
+        //     {
+        //         file.Length.ShouldBeLessThan(40 * 1024, "File length > 40 kb, check assembly trimming. Public distribution of source code should be avoided");
+        //
+        //         return await PushAsync(context, file, nuGetOptions.Value.PublicSource, nuGetOptions.Value.PublicApiKey, cancellationToken);
+        //     }, cancellationToken)
+        //     .ProcessInParallel();
 
         return await NothingAsync();
     }
