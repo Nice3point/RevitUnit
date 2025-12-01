@@ -8,7 +8,7 @@ namespace Nice3point.TUnit.Revit;
 /// This class provides dependency resolution, setup and cleanup methods for initializing and terminating
 /// the connection to the Revit API before and after the test session.
 /// </summary>
-public class RevitApiTest : RevitApplicationTest
+public abstract class RevitApiTest : RevitApplicationTest
 {
     /// <summary>
     /// Sets up the Revit session by initializing the connection to the Revit API.
