@@ -13,6 +13,9 @@
         <PackageVersion Include="Nice3point.Revit.Api.RevitNET" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
         <PackageVersion Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
 
+        <!-- Core Dependencies -->
+        <PackageVersion Include="PolyHook2.NET" Version="1.1.3"/>
+
         <!-- Build Automation -->
         <PackageVersion Include="Sourcy.DotNet" Version="0.7.9"/>
         <PackageVersion Include="ModularPipelines" Version="2.48.30"/>

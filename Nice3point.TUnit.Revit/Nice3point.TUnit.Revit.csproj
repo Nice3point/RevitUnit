@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <Configurations>Debug R22;Debug R23;Debug R24;Debug R25;Debug R26</Configurations>
-        <Configurations>$(Configurations);Release R22;Release R23;Release R24;Release R25;Release R26</Configurations>
+        <Configurations>Debug.R22;Debug.R23;Debug.R24;Debug.R25;Debug.R26</Configurations>
+        <Configurations>$(Configurations);Release.R22;Release.R23;Release.R24;Release.R25;Release.R26</Configurations>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -11,8 +11,10 @@
         <PackageId>Nice3point.TUnit.Revit</PackageId>
         <Authors>Nice3point</Authors>
         <Description>.NET testing framework for Revit</Description>
-        <PackageTags>revit;unit;test</PackageTags>
+        <PackageTags>autodesk;revit;unit;tests</PackageTags>
         <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Nice3point/RevitUnit</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Nice3point/RevitUnit</PackageProjectUrl>
         <PackageIcon>images\PackageIcon.png</PackageIcon>
         <PackageLicenseFile>License.md</PackageLicenseFile>
         <PackageReadmeFile>Readme.md</PackageReadmeFile>
@@ -20,28 +22,48 @@
 
     <PropertyGroup>
         <IsPackable>true</IsPackable>
-        <IncludeSymbols>false</IncludeSymbols>
+        <DebugType>portable</DebugType>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Nice3point.Revit.Build.Tasks" PrivateAssets="all"/>
-        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" PrivateAssets="all"/>
-        <PackageReference Include="TUnit"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(PublishProfile)' == 'Private' OR '$(PublishProfile)' == ''">
-        <PackageReference Include="Nice3point.Revit.Injector"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(PublishProfile)' == 'Public'">
-        <PackageReference Include="Nice3point.Revit.Injector" PrivateAssets="all"/>
-    </ItemGroup>
 
     <ItemGroup>
         <None Include="..\.nuget\PackageIcon.png" PackagePath="images\" Pack="true" Visible="false"/>
         <None Include="..\License.md" PackagePath="" Pack="true" Visible="false"/>
         <None Include="..\Readme.md" PackagePath="" Pack="true" Visible="false"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Nice3point.Revit.Build.Tasks" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPI" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Injector" PrivateAssets="all"/>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="PolyHook2.NET"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.WindowsDesktop.App"/>
+    </ItemGroup>
+
+    <Target Name="CopyRepackDependencies" AfterTargets="Build" Condition="$(Configuration.Contains('Release'))">
+        <PropertyGroup>
+            <DependenciesFolder>$(OutDir)Dependencies</DependenciesFolder>
+        </PropertyGroup>
+
+        <MakeDir Directories="$(DependenciesFolder)" Condition="!Exists('$(DependenciesFolder)')"/>
+
+        <ItemGroup>
+            <AllReferences Include="@(ReferencePathWithRefAssemblies)"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(AllReferences)" DestinationFolder="$(DependenciesFolder)" SkipUnchangedFiles="true"/>
+
+        <Message Text="Copied dependencies to: $(DependenciesFolder)" Importance="high"/>
+    </Target>
 
 </Project>
