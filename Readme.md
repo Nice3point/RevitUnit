@@ -7,6 +7,10 @@
 
 ## Testing Framework for Revit
 
+[![Nuget](https://img.shields.io/nuget/vpre/Nice3point.TUnit.Revit?style=for-the-badge)](https://www.nuget.org/packages/Nice3point.TUnit.Revit)
+[![Downloads](https://img.shields.io/nuget/dt/Nice3point.TUnit.Revit?style=for-the-badge)](https://www.nuget.org/packages/Nice3point.TUnit.Revit)
+[![Last Commit](https://img.shields.io/github/last-commit/Nice3point/RevitUnit/develop?style=for-the-badge)](https://github.com/Nice3point/RevitUnit/commits/develop)
+
 Write unit tests for your Revit add-ins using the [TUnit](https://github.com/thomhurst/TUnit) testing framework with source-generated tests,
 parallel execution, and Microsoft.Testing.Platform support.
 
@@ -58,7 +62,7 @@ For simple project execution, `dotnet run` is the preferred method, allowing eas
 
 ```bash
 cd 'C:/Your/Test/Directory'
-dotnet run -c "Release R26"
+dotnet run -c "Release.R26"
 ```
 
 ### dotnet test
@@ -67,7 +71,7 @@ dotnet run -c "Release R26"
 
 ```shell
 cd 'C:/Your/Test/Directory'
-dotnet test -c "Release R26"
+dotnet test -c "Release.R26"
 ```
 
 ### dotnet exec
@@ -75,14 +79,14 @@ dotnet test -c "Release R26"
 If your test project has already been built, use `dotnet exec` or `dotnet` with the .dll path:
 
 ```shell
-cd 'C:/Your/Test/Directory/bin/Release R26/'
+cd 'C:/Your/Test/Directory/bin/Release.R26/'
 dotnet exec YourTestProject.dll
 ```
 
 or
 
 ```shell
-cd 'C:/Your/Test/Directory/bin/Release R26/'
+cd 'C:/Your/Test/Directory/bin/Release.R26/'
 dotnet YourTestProject.dll
 ```
 
