@@ -14,11 +14,7 @@ public sealed class DeleteNugetModule(IOptions<BuildOptions> buildOptions, IOpti
     protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
     {
         await buildOptions.Value.Versions.Values
-            .ForEachAsync(async version =>
-                {
-                    await DeleteNugetPackageAsync(context, version, nuGetOptions.Value.PrivateSource, nuGetOptions.Value.PrivateApiKey, cancellationToken);
-                    await DeleteNugetPackageAsync(context, version, nuGetOptions.Value.PublicSource, nuGetOptions.Value.PublicApiKey, cancellationToken);
-                },
+            .ForEachAsync(async version => { await DeleteNugetPackageAsync(context, version, nuGetOptions.Value.Source, nuGetOptions.Value.ApiKey, cancellationToken); },
                 cancellationToken)
             .ProcessInParallel();
 

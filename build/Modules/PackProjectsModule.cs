@@ -19,26 +19,17 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
     protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
     {
         var configurations = await GetModule<ParseSolutionConfigurationsModule>();
-        var privateOutputFolder = context.Git().RootDirectory
-            .GetFolder(packOptions.Value.OutputDirectory)
-            .GetFolder(packOptions.Value.PrivateOutputDirectory);
-        var publicOutputFolder = context.Git().RootDirectory
-            .GetFolder(packOptions.Value.OutputDirectory)
-            .GetFolder(packOptions.Value.PublicOutputDirectory);
+        var outputFolder = context.Git().RootDirectory.GetFolder(packOptions.Value.OutputDirectory);
 
         foreach (var configuration in configurations.Value!)
         {
-            await SubModule(configuration, async () =>
-            {
-                await PackPrivateAsync(context, configuration, privateOutputFolder.Path, cancellationToken);
-                // await PackPublicAsync(context, configuration, publicOutputFolder.Path, cancellationToken);
-            });
+            await SubModule(configuration, async () => await PackAsync(context, configuration, outputFolder.Path, cancellationToken));
         }
 
         return await NothingAsync();
     }
 
-    private async Task<CommandResult> PackPrivateAsync(IPipelineContext context, string configuration, string output, CancellationToken cancellationToken)
+    private async Task<CommandResult> PackAsync(IPipelineContext context, string configuration, string output, CancellationToken cancellationToken)
     {
         buildOptions.Value.Versions
             .TryGetValue(configuration, out var version)
@@ -64,38 +55,6 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
             {
                 ("Version", version.ToString()),
                 ("PublishProfile", "Private"),
-            },
-            OutputDirectory = output
-        }, cancellationToken);
-    }
-
-    private async Task<CommandResult> PackPublicAsync(IPipelineContext context, string configuration, string output, CancellationToken cancellationToken)
-    {
-        buildOptions.Value.Versions
-            .TryGetValue(configuration, out var version)
-            .ShouldBeTrue($"Can't find pack version for configuration: {configuration}");
-
-        await context.DotNet().Restore(new DotNetRestoreOptions
-        {
-            Path = Projects.Nice3point_TUnit_Revit.FullName,
-            Verbosity = Verbosity.Minimal,
-            Properties = new List<KeyValue>
-            {
-                ("Configuration", configuration)
-            }
-        }, cancellationToken);
-
-        return await context.DotNet().Pack(new DotNetPackOptions
-        {
-            ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
-            Configuration = configuration,
-            Verbosity = Verbosity.Minimal,
-            NoBuild = true,
-            Properties = new List<KeyValue>
-            {
-                ("Version", version.ToString()),
-                ("PublishProfile", "Public"),
-                ("ProduceOnlyReferenceAssembly", "true")
             },
             OutputDirectory = output
         }, cancellationToken);

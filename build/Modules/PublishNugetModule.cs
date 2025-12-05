@@ -18,30 +18,13 @@ public sealed class PublishNugetModule(IOptions<PackOptions> packOptions, IOptio
 {
     protected override async Task<CommandResult[]?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
     {
-        var privateOutputFolder = context.Git().RootDirectory
-            .GetFolder(packOptions.Value.OutputDirectory)
-            .GetFolder(packOptions.Value.PrivateOutputDirectory);
-        var publicOutputFolder = context.Git().RootDirectory
-            .GetFolder(packOptions.Value.OutputDirectory)
-            .GetFolder(packOptions.Value.PublicOutputDirectory);
+        var privateOutputFolder = context.Git().RootDirectory.GetFolder(packOptions.Value.OutputDirectory);
+        var targetPackages = privateOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
+        targetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
 
-        var privateTargetPackages = privateOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
-        // var publicTargetPackages = publicOutputFolder.GetFiles(file => file.Extension == ".nupkg").ToArray();
-        privateTargetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
-        // publicTargetPackages.ShouldNotBeEmpty("No NuGet packages were found to publish");
-
-        await privateTargetPackages
-            .SelectAsync(async file => await PushAsync(context, file, nuGetOptions.Value.PrivateSource, nuGetOptions.Value.PrivateApiKey, cancellationToken), cancellationToken)
+        await targetPackages
+            .SelectAsync(async file => await PushAsync(context, file, nuGetOptions.Value.Source, nuGetOptions.Value.ApiKey, cancellationToken), cancellationToken)
             .ProcessInParallel();
-
-        // await publicTargetPackages
-        //     .SelectAsync(async file =>
-        //     {
-        //         file.Length.ShouldBeLessThan(40 * 1024, "File length > 40 kb, check assembly trimming. Public distribution of source code should be avoided");
-        //
-        //         return await PushAsync(context, file, nuGetOptions.Value.PublicSource, nuGetOptions.Value.PublicApiKey, cancellationToken);
-        //     }, cancellationToken)
-        //     .ProcessInParallel();
 
         return await NothingAsync();
     }
