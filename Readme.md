@@ -5,14 +5,14 @@
     </picture>
 </p>
 
-## Testing Framework for .Revit
+## Testing Framework for Revit
 
 Write unit tests for your Revit add-ins using the [TUnit](https://github.com/thomhurst/TUnit) testing framework with source-generated tests,
 parallel execution, and Microsoft.Testing.Platform support.
 
 ## Installation
 
-You can install the Toolkit as a [NuGet package](https://www.nuget.org/packages/Nice3point.TUnit.Revit).
+You can install this library as a [NuGet package](https://www.nuget.org/packages/Nice3point.TUnit.Revit).
 
 The packages are compiled for specific versions of Revit. To support different versions of libraries in one project, use the `RevitVersion` property:
 
@@ -86,6 +86,9 @@ cd 'C:/Your/Test/Directory/bin/Release R26/'
 dotnet YourTestProject.dll
 ```
 
+> [!IMPORTANT]
+> You must have a licensed copy of Autodesk Revit installed on your machine to run tests, with a version that matches the selected Solution configuration.
+
 ### JetBrains Rider
 
 The [Enable Testing Platform support option](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-intro?tabs=dotnetcli) must be selected in
@@ -133,7 +136,7 @@ public sealed class RevitDocumentTests : RevitApiTest
     [HookExecutor<RevitThreadExecutor>]
     public static void Setup()
     {
-        _documentFile = Application.OpenDocumentFile($@"C:\Program Files\Autodesk\Revit 2025\Samples\sample_family.rfa");
+        _documentFile = Application.OpenDocumentFile($@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples\rac_basic_sample_family.rfa");
     }
 
     [After(Class)]
