@@ -13,23 +13,37 @@ using Sourcy.DotNet;
 namespace Build.Modules;
 
 [DependsOn<RepackInjectorModule>]
-[DependsOn<ParseSolutionConfigurationsModule>]
-public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOptions<PackOptions> packOptions) : Module
+[DependsOn<GenerateNugetChangelogModule>]
+[DependsOn<ResolveConfigurationsModule>]
+public sealed class PackNugetModule(IOptions<BuildOptions> buildOptions) : Module
 {
     protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
     {
-        var configurations = await GetModule<ParseSolutionConfigurationsModule>();
-        var outputFolder = context.Git().RootDirectory.GetFolder(packOptions.Value.OutputDirectory);
+        var changelogResult = await GetModule<GenerateNugetChangelogModule>();
+        var configurationsResult = await GetModule<ResolveConfigurationsModule>();
 
-        foreach (var configuration in configurations.Value!)
+        var outputFolder = context.Git().RootDirectory.GetFolder(buildOptions.Value.OutputDirectory);
+        var changelog = changelogResult.Value ?? string.Empty;
+        var configurations = configurationsResult.Value!;
+
+        foreach (var configuration in configurations)
         {
-            await SubModule(configuration, async () => await PackAsync(context, configuration, outputFolder.Path, cancellationToken));
+            await SubModule(configuration, async () => await PackAsync(
+                context,
+                configuration,
+                changelog,
+                outputFolder.Path,
+                cancellationToken));
         }
 
         return await NothingAsync();
     }
 
-    private async Task<CommandResult> PackAsync(IPipelineContext context, string configuration, string output, CancellationToken cancellationToken)
+    private async Task<CommandResult> PackAsync(IPipelineContext context,
+        string configuration,
+        string changelog,
+        string output,
+        CancellationToken cancellationToken)
     {
         buildOptions.Value.Versions
             .TryGetValue(configuration, out var version)
@@ -51,11 +65,11 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions, IOpt
             Configuration = configuration,
             Verbosity = Verbosity.Minimal,
             NoBuild = true,
-            Properties = new List<KeyValue>
-            {
-                ("Version", version.ToString()),
-                ("PublishProfile", "Private"),
-            },
+            Properties =
+            [
+                ("Version", version),
+                ("PackageReleaseNotes", changelog)
+            ],
             OutputDirectory = output
         }, cancellationToken);
     }

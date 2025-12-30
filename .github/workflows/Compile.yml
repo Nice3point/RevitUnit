@@ -14,6 +14,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Cache NuGet
         uses: actions/cache@v5
@@ -28,3 +30,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOTNET_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+          NuGet__InternalApiKey: ${{ secrets.GITHUB_TOKEN }}

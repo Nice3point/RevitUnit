@@ -13,6 +13,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Cache NuGet
         uses: actions/cache@v5
@@ -26,5 +28,7 @@ jobs:
         working-directory: "build"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOTNET_ENVIRONMENT: "Production"
-          NuGet__ApiKey: ${{ secrets.NICE3POINT_PACKAGES_API_KEY }}
+          DOTNET_ENVIRONMENT: ${{ (github.ref_name == 'main' || github.ref_type == 'tag') && 'Production' || 'Development' }}
+          Pack__Version: ${{ github.ref_name }}
+          NuGet__InternalApiKey: ${{ secrets.GITHUB_TOKEN }}
+          NuGet__ApiKey: ${{ secrets.NUGET_API_KEY }}

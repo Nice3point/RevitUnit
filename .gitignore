@@ -8,7 +8,7 @@
 *bin/
 *temp/
 
-#Nuke output folder
+#Build output folder
 /output/
 
 #User-specific files

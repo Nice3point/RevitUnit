@@ -5,6 +5,6 @@ namespace Build.Options;
 [Serializable]
 public sealed record BuildOptions
 {
-    [Required] public string ConfigurationFilter { get; init; } = null!;
-    [Required] public Dictionary<string, Version> Versions { get; init; } = null!;
+    [Required] public string OutputDirectory { get; init; } = null!;
+    [Required] public Dictionary<string, string> Versions { get; init; } = null!;
 }

@@ -4,6 +4,9 @@
         <option name="PROGRAM_PARAMETERS" value="pack"/>
         <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/build/bin/Debug/net10.0"/>
         <option name="PASS_PARENT_ENVS" value="1"/>
+        <envs>
+            <env name="Pack__Version" value="2026.0.0-preview.1.20251228"/>
+        </envs>
         <option name="ENV_FILE_PATHS" value=""/>
         <option name="REDIRECT_INPUT_PATH" value=""/>
         <option name="MIXED_MODE_DEBUG" value="0"/>

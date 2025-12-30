@@ -11,10 +11,10 @@ public static class IlRepackExtensions
     [ModuleInitializer]
     public static void RegisterIlRepackContext()
     {
-        ModularPipelinesContextRegistry.RegisterContext(collection => RegisterIlRepackContext(collection));
+        ModularPipelinesContextRegistry.RegisterContext(collection => collection.RegisterIlRepackContext());
     }
 
-    public static IServiceCollection RegisterIlRepackContext(this IServiceCollection services)
+    private static IServiceCollection RegisterIlRepackContext(this IServiceCollection services)
     {
         services.TryAddScoped<ILRepack>();
         return services;

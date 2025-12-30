@@ -6,6 +6,7 @@ namespace Build.Options;
 [Serializable]
 public sealed record NuGetOptions
 {
-    [Required] [SecretValue] public string ApiKey { get; init; } = null!;
-    [Required] public string Source { get; init; } = null!;
+    [Required] [SecretValue] public string InternalApiKey { get; init; } = null!;
+    [SecretValue] public string ApiKey { get; init; } = null!;
+    public string Source { get; init; } = null!;
 }
