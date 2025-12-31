@@ -25,7 +25,7 @@ public sealed class DeleteNugetModule(IOptions<BuildOptions> buildOptions, IOpti
     {
         return await context.DotNet().Nuget.Delete(new DotNetNugetDeleteOptions
         {
-            PackageName = "Nice3point.BenchmarkDotNet.Revit",
+            PackageName = "Nice3point.TUnit.Revit",
             PackageVersion = version,
             ApiKey = apiKey,
             Source = source,
