@@ -38,6 +38,7 @@ public sealed class RevitDocumentTests : RevitApiTest
 
     [Test]
     [TestExecutor<RevitThreadExecutor>]
+    [DependsOn(nameof(FilteredElementCollector_ElementTypes_ValidAssignable))]
     public async Task Delete_Dimensions_ElementsWithDependenciesDeleted()
     {
         var elementIds = new FilteredElementCollector(_documentFile)
