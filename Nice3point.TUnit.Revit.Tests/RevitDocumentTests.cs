@@ -5,20 +5,27 @@ namespace Nice3point.TUnit.Revit.Tests;
 
 public sealed class RevitDocumentTests : RevitApiTest
 {
-    private static Document _documentFile = null!;
+    private static Document? _documentFile;
 
     [Before(Class)]
     [HookExecutor<RevitThreadExecutor>]
     public static void Setup()
     {
-        _documentFile = Application.OpenDocumentFile($@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples\rac_basic_sample_family.rfa");
+        var samplePath = $@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples\rac_basic_sample_family.rfa";
+        if (!File.Exists(samplePath))
+        {
+            Skip.Test("No sample family found");
+            return;
+        }
+
+        _documentFile = Application.OpenDocumentFile(samplePath);
     }
 
     [After(Class)]
     [HookExecutor<RevitThreadExecutor>]
     public static void Cleanup()
     {
-        _documentFile.Close(false);
+        _documentFile?.Close(false);
     }
 
     [Test]
@@ -56,7 +63,7 @@ public sealed class RevitDocumentTests : RevitApiTest
 
         using var transaction = new Transaction(_documentFile);
         transaction.Start("Delete dimensions");
-        var deletedElements = _documentFile.Delete(elementIds);
+        var deletedElements = _documentFile!.Delete(elementIds);
         transaction.Commit();
 
         await Assert.That(deletedElements.Count).IsGreaterThanOrEqualTo(elementIds.Count);
