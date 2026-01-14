@@ -5,7 +5,7 @@ namespace Nice3point.TUnit.Revit.Tests;
 
 public sealed class FamiliesDataSourceTests : RevitApiTest
 {
-    private static string SamplesPath => $@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples";
+    private static readonly string SamplesPath = $@"C:\Program Files\Autodesk\Revit {Application.VersionNumber}\Samples";
 
     [Before(Class)]
     public static void ValidateSamples()
