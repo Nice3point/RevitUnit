@@ -74,22 +74,6 @@ cd 'C:/Your/Test/Directory'
 dotnet test -c "Release.R26"
 ```
 
-### dotnet exec
-
-If your test project has already been built, use `dotnet exec` or `dotnet` with the .dll path:
-
-```shell
-cd 'C:/Your/Test/Directory/bin/Release.R26/'
-dotnet exec YourTestProject.dll
-```
-
-or
-
-```shell
-cd 'C:/Your/Test/Directory/bin/Release.R26/'
-dotnet YourTestProject.dll
-```
-
 > [!IMPORTANT]
 > You must have a licensed copy of Autodesk Revit installed on your machine to run tests, with a version that matches the selected Solution configuration.
 
