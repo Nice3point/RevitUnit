@@ -15,7 +15,7 @@ public abstract class RevitApiTest : RevitApplicationTest
     /// This method is executed before the test session begins, ensuring that the
     /// necessary prerequisites for the tests interacting with the Revit environment are satisfied.
     /// </summary>
-    [Before(TestSession)]
+    [Before(TestDiscovery)]
     [HookExecutor<RevitThreadExecutor>]
     public static void RevitSessionSetup()
     {
