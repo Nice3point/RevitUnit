@@ -151,7 +151,6 @@ public sealed class RevitDocumentTests : RevitApiTest
     }
 
     [Test]
-    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
     public async Task FilteredElementCollector_ElementTypes_ValidAssignable()
     {
@@ -167,7 +166,6 @@ public sealed class RevitDocumentTests : RevitApiTest
     }
 
     [Test]
-    [NotInParallel]
     [TestExecutor<RevitThreadExecutor>]
     public async Task Delete_Dimensions_ElementsWithDependenciesDeleted()
     {
@@ -186,3 +184,7 @@ public sealed class RevitDocumentTests : RevitApiTest
     }
 }
 ```
+
+> [!NOTE]
+> The examples demonstrate basic testing functionality. This library **only adds support for working within the Revit API context**. For comprehensive documentation on assertions, attributes, test configuration, and
+> advanced features, please refer to the official [TUnit documentation](https://thomhurst.github.io/TUnit/).
