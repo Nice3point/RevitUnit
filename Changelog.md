@@ -1,3 +1,8 @@
+# 2026.0.3
+
+- Changed the Revit initialization lifecycle. Now Revit is initialized [before TestDiscovery](https://tunit.dev/docs/test-lifecycle/lifecycle-overview) to support Data sources.
+- Added new MethodDataSource samples based on Revit runtime values.
+
 # 2026.0.2
 
 Initial public release. Enjoy!
