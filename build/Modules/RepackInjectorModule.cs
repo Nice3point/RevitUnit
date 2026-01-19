@@ -2,6 +2,7 @@
 using Build.ILRepack.Options;
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;
+using ModularPipelines.FileSystem;
 using ModularPipelines.Modules;
 using Shouldly;
 using Sourcy.DotNet;
@@ -9,10 +10,10 @@ using File = ModularPipelines.FileSystem.File;
 
 namespace Build.Modules;
 
-[DependsOn<CompileProjectModule>]
+[DependsOn<CompileProjectsModule>]
 public sealed class RepackInjectorModule : Module
 {
-    protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var targetProject = new File(Projects.Nice3point_TUnit_Revit.FullName);
         var targetFolders = targetProject.Folder!
@@ -31,7 +32,7 @@ public sealed class RepackInjectorModule : Module
             var dependencyAssembly = dependenciesFolder.GetFile("Nice3point.Revit.Injector.dll");
             dependencyAssembly.Exists.ShouldBeTrue("Dependency assembly not found.");
 
-            var temporaryOutput = context.FileSystem.CreateTemporaryFolder().GetFile($"{targetProject.NameWithoutExtension}.dll");
+            var temporaryOutput = Folder.CreateTemporaryFolder().GetFile($"{targetProject.NameWithoutExtension}.dll");
             var temporaryPdb = new File(Path.ChangeExtension(temporaryOutput.Path, ".pdb"));
 
             await context.IlRepack().Repack(new IlRepackOptions
@@ -48,13 +49,11 @@ public sealed class RepackInjectorModule : Module
 
             temporaryOutput.Exists.ShouldBeTrue("Repacked assembly not found.");
 
-            primaryAssembly.Delete();
-            primaryPdb.Delete();
-            temporaryOutput.MoveTo(primaryAssembly.Path);
-            temporaryPdb.MoveTo(primaryPdb.Path);
-            dependencyAssembly.Delete();
+            await primaryAssembly.DeleteAsync(cancellationToken);
+            await primaryPdb.DeleteAsync(cancellationToken);
+            await temporaryOutput.MoveToAsync(primaryAssembly.Path, cancellationToken);
+            await temporaryPdb.MoveToAsync(primaryPdb.Path, cancellationToken);
+            await dependencyAssembly.DeleteAsync(cancellationToken);
         }
-
-        return await NothingAsync();
     }
 }

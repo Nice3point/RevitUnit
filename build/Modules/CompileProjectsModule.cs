@@ -16,19 +16,17 @@ namespace Build.Modules;
 /// </summary>
 [DependsOn<UpdateNugetSourceModule>]
 [DependsOn<ResolveConfigurationsModule>]
-public sealed class CompileProjectModule(IOptions<BuildOptions> buildOptions) : Module
+public sealed class CompileProjectsModule(IOptions<BuildOptions> buildOptions) : Module
 {
-    protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
     {
-        var configurationsResult = await GetModule<ResolveConfigurationsModule>();
-        var configurations = configurationsResult.Value!;
+        var configurationsResult = await context.GetModule<ResolveConfigurationsModule>();
+        var configurations = configurationsResult.ValueOrDefault!;
 
         foreach (var configuration in configurations)
         {
-            await SubModule(configuration, async () => await CompileAsync(context, configuration, cancellationToken));
+            await context.SubModule(configuration, async () => await CompileAsync(context, configuration, cancellationToken));
         }
-
-        return await NothingAsync();
     }
 
     private async Task<CommandResult> CompileAsync(IPipelineContext context, string configuration, CancellationToken cancellationToken)
@@ -41,11 +39,10 @@ public sealed class CompileProjectModule(IOptions<BuildOptions> buildOptions) : 
         {
             ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
             Configuration = configuration,
-            Verbosity = Verbosity.Minimal,
             Properties = new List<KeyValue>
             {
                 ("Version", version)
             }
-        }, cancellationToken);
+        }, cancellationToken: cancellationToken);
     }
 }

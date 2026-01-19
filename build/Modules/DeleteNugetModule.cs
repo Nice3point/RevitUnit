@@ -9,27 +9,20 @@ using ModularPipelines.Modules;
 
 namespace Build.Modules;
 
-public sealed class DeleteNugetModule(IOptions<BuildOptions> buildOptions, IOptions<NuGetOptions> nugetOptions) : Module
+public sealed class DeleteNugetModule(IOptions<BuildOptions> buildOptions, IOptions<NuGetOptions> nuGetOptions) : Module<CommandResult[]?>
 {
-    protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<CommandResult[]?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
-        await buildOptions.Value.Versions.Values
-            .ForEachAsync(async version => { await DeleteNugetPackageAsync(context, version, nugetOptions.Value.Source, nugetOptions.Value.ApiKey, cancellationToken); },
+        return await buildOptions.Value.Versions.Values
+            .SelectAsync(async version => await context.DotNet().Nuget.Delete(new DotNetNugetDeleteOptions
+                {
+                    PackageName = "Nice3point.TUnit.Revit",
+                    Version = version.ToString(),
+                    ApiKey = nuGetOptions.Value.ApiKey,
+                    Source = nuGetOptions.Value.Source,
+                    NonInteractive = true
+                }, cancellationToken: cancellationToken),
                 cancellationToken)
-            .ProcessOneAtATime();
-
-        return await NothingAsync();
-    }
-
-    private async Task<CommandResult> DeleteNugetPackageAsync(IPipelineContext context, string version, string source, string apiKey, CancellationToken cancellationToken)
-    {
-        return await context.DotNet().Nuget.Delete(new DotNetNugetDeleteOptions
-        {
-            PackageName = "Nice3point.TUnit.Revit",
-            PackageVersion = version,
-            ApiKey = apiKey,
-            Source = source,
-            NonInteractive = true
-        }, cancellationToken);
+            .ProcessInParallel();
     }
 }

@@ -8,16 +8,13 @@ using File = ModularPipelines.FileSystem.File;
 
 namespace Build.Modules;
 
-/// <summary>
-///     Generate the changelog for publishing the templates.
-/// </summary>
-[DependsOn<ResolvePackVersionModule>]
+[DependsOn<ResolveVersioningModule>]
 public sealed class GenerateChangelogModule : Module<string>
 {
-    protected override async Task<string?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<string?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
-        var versioningResult = await GetModule<ResolvePackVersionModule>();
-        var versioning = versioningResult.Value!;
+        var versioningResult = await context.GetModule<ResolveVersioningModule>();
+        var versioning = versioningResult.ValueOrDefault!;
 
         var changelogFile = context.Git().RootDirectory.GetFile("Changelog.md");
 
@@ -26,6 +23,7 @@ public sealed class GenerateChangelogModule : Module<string>
 
         return changelog.ToString();
     }
+
 
     /// <summary>
     ///     Parse the changelog file to extract the entries for a specific version.
@@ -37,7 +35,7 @@ public sealed class GenerateChangelogModule : Module<string>
         var isChangelogEntryFound = false;
         var changelog = new StringBuilder();
 
-        foreach (var line in await changelogFile.ReadLinesAsync())
+        await foreach (var line in changelogFile.ReadLinesAsync())
         {
             if (isChangelogEntryFound)
             {

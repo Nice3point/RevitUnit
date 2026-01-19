@@ -3,5 +3,5 @@
 [Serializable]
 public sealed record PublishOptions
 {
-    public string? ChangelogFile { get; init; }
+    public string Version { get; init; } = string.Empty;
 }

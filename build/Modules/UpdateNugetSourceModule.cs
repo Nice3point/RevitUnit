@@ -9,14 +9,13 @@ namespace Build.Modules;
 
 public sealed class UpdateNugetSourceModule(IOptions<NuGetOptions> nugetOptions) : Module
 {
-    protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
     {
-        await context.DotNet().Nuget.Update.Source(new DotNetNugetUpdateSourceOptions("nice3point")
+        await context.DotNet().Nuget.Update.Source(new DotNetNugetUpdateSourceOptions
         {
             Username = "Nice3point",
-            Password = nugetOptions.Value.InternalApiKey
-        }, cancellationToken);
-
-        return await NothingAsync();
+            Password = nugetOptions.Value.InternalApiKey,
+            Arguments = ["nice3point"]
+        }, cancellationToken: cancellationToken);
     }
 }

@@ -20,5 +20,5 @@ public static class IlRepackExtensions
         return services;
     }
 
-    public static ILRepack IlRepack(this IPipelineHookContext context) => context.ServiceProvider.GetRequiredService<ILRepack>();
+    public static ILRepack IlRepack(this IPipelineContext context) => context.Services.Get<ILRepack>();
 }

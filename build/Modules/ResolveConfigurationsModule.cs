@@ -12,7 +12,7 @@ namespace Build.Modules;
 /// </summary>
 public sealed class ResolveConfigurationsModule : Module<string[]>
 {
-    protected override async Task<string[]?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task<string[]?> ExecuteAsync(IModuleContext context, CancellationToken cancellationToken)
     {
         var solutionModel = await LoadSolutionModelAsync(context, cancellationToken);
         var configurations = solutionModel.BuildTypes

@@ -15,33 +15,32 @@ namespace Build.Modules;
 [DependsOn<RepackInjectorModule>]
 [DependsOn<GenerateNugetChangelogModule>]
 [DependsOn<ResolveConfigurationsModule>]
-public sealed class PackNugetModule(IOptions<BuildOptions> buildOptions) : Module
+public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions) : Module
 {
-    protected override async Task<IDictionary<string, object>?> ExecuteAsync(IPipelineContext context, CancellationToken cancellationToken)
+    protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)
     {
-        var changelogResult = await GetModule<GenerateNugetChangelogModule>();
-        var configurationsResult = await GetModule<ResolveConfigurationsModule>();
+        var configurationsResult = await context.GetModule<ResolveConfigurationsModule>();
+        var changelogModule = context.GetModuleIfRegistered<GenerateNugetChangelogModule>();
 
+        var configurations = configurationsResult.ValueOrDefault!;
+        var changelogResult = changelogModule is null ? null : await changelogModule;
+        var changelog = changelogResult?.ValueOrDefault;
         var outputFolder = context.Git().RootDirectory.GetFolder(buildOptions.Value.OutputDirectory);
-        var changelog = changelogResult.Value ?? string.Empty;
-        var configurations = configurationsResult.Value!;
 
         foreach (var configuration in configurations)
         {
-            await SubModule(configuration, async () => await PackAsync(
+            await context.SubModule(configuration, async () => await PackAsync(
                 context,
                 configuration,
                 changelog,
                 outputFolder.Path,
                 cancellationToken));
         }
-
-        return await NothingAsync();
     }
 
     private async Task<CommandResult> PackAsync(IPipelineContext context,
         string configuration,
-        string changelog,
+        string? changelog,
         string output,
         CancellationToken cancellationToken)
     {
@@ -51,26 +50,24 @@ public sealed class PackNugetModule(IOptions<BuildOptions> buildOptions) : Modul
 
         await context.DotNet().Restore(new DotNetRestoreOptions
         {
-            Path = Projects.Nice3point_TUnit_Revit.FullName,
-            Verbosity = Verbosity.Minimal,
+            ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
             Properties = new List<KeyValue>
             {
                 ("Configuration", configuration)
             }
-        }, cancellationToken);
+        }, cancellationToken: cancellationToken);
 
         return await context.DotNet().Pack(new DotNetPackOptions
         {
             ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
             Configuration = configuration,
-            Verbosity = Verbosity.Minimal,
             NoBuild = true,
             Properties =
             [
                 ("Version", version),
-                ("PackageReleaseNotes", changelog)
+                ("PackageReleaseNotes", changelog ?? string.Empty)
             ],
-            OutputDirectory = output
-        }, cancellationToken);
+            Output = output
+        }, cancellationToken: cancellationToken);
     }
 }

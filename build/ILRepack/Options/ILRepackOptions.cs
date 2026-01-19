@@ -1,134 +1,136 @@
-﻿using ModularPipelines.Attributes;
+﻿using JetBrains.Annotations;
+using ModularPipelines.Attributes;
 using ModularPipelines.Options;
 
 namespace Build.ILRepack.Options;
 
+[PublicAPI]
 [Serializable]
-public sealed record IlRepackOptions() : CommandLineToolOptions("ilrepack")
+public sealed record IlRepackOptions : CommandLineToolOptions
 {
-    [BooleanCommandSwitch("/help")]
+    [CliFlag("/help")]
     public bool? Help { get; init; }
 
-    [CommandSwitch("@", SwitchValueSeparator = "")]
+    [CliOption("@", CustomSeparator = "")]
     public string? ResponseFile { get; init; }
 
-    [CommandSwitch("/out", SwitchValueSeparator = ":")]
+    [CliOption("/out", CustomSeparator = ":")]
     public string? Output { get; init; }
 
-    [CommandSwitch("/log", SwitchValueSeparator = ":")]
+    [CliOption("/log", CustomSeparator = ":")]
     public string? LogFile { get; init; }
 
-    [BooleanCommandSwitch("/verbose")]
+    [CliFlag("/verbose")]
     public bool? Verbose { get; init; }
 
-    [BooleanCommandSwitch("/wildcards")]
+    [CliFlag("/wildcards")]
     public bool? Wildcards { get; init; }
 
-    [CommandSwitch("/lib", SwitchValueSeparator = ":")]
+    [CliOption("/lib", CustomSeparator = ":")]
     public IEnumerable<string>? SearchDirectories { get; init; }
 
-    [CommandSwitch("/target", SwitchValueSeparator = ":")]
+    [CliOption("/target", CustomSeparator = ":")]
     public string? TargetKind { get; init; }
 
-    [CommandSwitch("/ver", SwitchValueSeparator = ":")]
+    [CliOption("/ver", CustomSeparator = ":")]
     public string? Version { get; init; }
 
-    [CommandSwitch("/keyfile", SwitchValueSeparator = ":")]
+    [CliOption("/keyfile", CustomSeparator = ":")]
     public string? KeyFile { get; init; }
 
-    [CommandSwitch("/keycontainer", SwitchValueSeparator = ":")]
+    [CliOption("/keycontainer", CustomSeparator = ":")]
     public string? KeyContainer { get; init; }
 
-    [BooleanCommandSwitch("/delaysign")]
+    [CliFlag("/delaysign")]
     public bool? DelaySign { get; init; }
 
-    [BooleanCommandSwitch("/internalize")]
+    [CliFlag("/internalize")]
     public bool? Internalize { get; init; }
 
-    [CommandSwitch("/internalizeassembly", SwitchValueSeparator = ":")]
+    [CliOption("/internalizeassembly", CustomSeparator = ":")]
     public IEnumerable<string>? InternalizeAssemblies { get; init; }
 
-    [CommandSwitch("/internalize", SwitchValueSeparator = ":")]
+    [CliOption("/internalize", CustomSeparator = ":")]
     public string? InternalizeExcludeFile { get; init; }
 
-    [BooleanCommandSwitch("/renameinternalized")]
+    [CliFlag("/renameinternalized")]
     public bool? RenameInternalized { get; init; }
 
-    [BooleanCommandSwitch("/excludeinternalizeserializable")]
+    [CliFlag("/excludeinternalizeserializable")]
     public bool? ExcludeInternalizeSerializable { get; init; }
 
-    [CommandSwitch("/allowdup", SwitchValueSeparator = ":")]
+    [CliOption("/allowdup", CustomSeparator = ":")]
     public IEnumerable<string>? AllowDuplicatesForTypes { get; init; }
 
-    [BooleanCommandSwitch("/allowdup")]
+    [CliFlag("/allowdup")]
     public bool? AllowDuplicatesAll { get; init; }
 
-    [BooleanCommandSwitch("/union")]
+    [CliFlag("/union")]
     public bool? Union { get; init; }
 
-    [CommandSwitch("/repackdrop", SwitchValueSeparator = ":")]
+    [CliOption("/repackdrop", CustomSeparator = ":")]
     public string? RepackDropAttribute { get; init; }
 
-    [BooleanCommandSwitch("/allowduplicateresources")]
+    [CliFlag("/allowduplicateresources")]
     public bool? AllowDuplicateResources { get; init; }
 
-    [BooleanCommandSwitch("/noRepackRes")]
+    [CliFlag("/noRepackRes")]
     public bool? NoRepackResource { get; init; }
 
-    [BooleanCommandSwitch("/copyattrs")]
+    [CliFlag("/copyattrs")]
     public bool? CopyAttributes { get; init; }
 
-    [CommandSwitch("/attr", SwitchValueSeparator = ":")]
+    [CliOption("/attr", CustomSeparator = ":")]
     public string? AttributesAssembly { get; init; }
 
-    [BooleanCommandSwitch("/allowMultiple")]
+    [CliFlag("/allowMultiple")]
     public bool? AllowMultipleAttributes { get; init; }
 
-    [CommandSwitch("/targetplatform", SwitchValueSeparator = ":")]
+    [CliOption("/targetplatform", CustomSeparator = ":")]
     public string? TargetPlatform { get; init; }
 
-    [BooleanCommandSwitch("/keepotherversionreferences")]
+    [CliFlag("/keepotherversionreferences")]
     public bool? KeepOtherVersionReferences { get; init; }
 
-    [BooleanCommandSwitch("/preservetimestamp")]
+    [CliFlag("/preservetimestamp")]
     public bool? PreserveTimestamp { get; init; }
 
-    [BooleanCommandSwitch("/skipconfig")]
+    [CliFlag("/skipconfig")]
     public bool? SkipConfig { get; init; }
 
-    [BooleanCommandSwitch("/illink")]
+    [CliFlag("/illink")]
     public bool? ILLink { get; init; }
 
-    [BooleanCommandSwitch("/xmldocs")]
+    [CliFlag("/xmldocs")]
     public bool? XmlDocs { get; init; }
 
-    [BooleanCommandSwitch("/ndebug")]
+    [CliFlag("/ndebug")]
     public bool? NoDebugSymbols { get; init; }
 
-    [BooleanCommandSwitch("/zeropekind")]
+    [CliFlag("/zeropekind")]
     public bool? ZeroPeKind { get; init; }
 
-    [BooleanCommandSwitch("/index")]
+    [CliFlag("/index")]
     public bool? IndexDebugInfo { get; init; }
 
-    [BooleanCommandSwitch("/parallel")]
+    [CliFlag("/parallel")]
     public bool? Parallel { get; init; }
 
-    [BooleanCommandSwitch("/pause")]
+    [CliFlag("/pause")]
     public bool? Pause { get; init; }
 
-    [BooleanCommandSwitch("/usefullpublickeyforreferences")]
+    [CliFlag("/usefullpublickeyforreferences")]
     public bool? UseFullPublicKeyForReferences { get; init; }
 
-    [BooleanCommandSwitch("/align")]
+    [CliFlag("/align")]
     public bool? Align { get; init; }
 
-    [BooleanCommandSwitch("/closed")]
+    [CliFlag("/closed")]
     public bool? Closed { get; init; }
 
-    [PositionalArgument]
+    [CliArgument(0, Placement = ArgumentPlacement.AfterOptions)]
     public string? PrimaryAssembly { get; init; }
 
-    [PositionalArgument]
+    [CliArgument(1, Placement = ArgumentPlacement.AfterOptions)]
     public IEnumerable<string>? OtherAssemblies { get; init; }
 }

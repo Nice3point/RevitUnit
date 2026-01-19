@@ -1,14 +1,15 @@
 ﻿using Build.ILRepack.Options;
 using ModularPipelines.Context;
+using ModularPipelines.DotNet.Options;
+using ModularPipelines.DotNet.Services;
 using ModularPipelines.FileSystem;
 using ModularPipelines.Models;
-using ModularPipelines.Options;
 
 namespace Build.ILRepack;
 
-public sealed class ILRepack(IPipelineContext context)
+public sealed class ILRepack(IDotNet dotNet, ICommand command)
 {
-    private readonly Folder _temporaryFolder = context.FileSystem.CreateTemporaryFolder();
+    private readonly Folder _temporaryFolder = Folder.CreateTemporaryFolder();
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
 
     public async Task<CommandResult> Repack(IlRepackOptions options, CancellationToken cancellationToken = default)
@@ -17,25 +18,15 @@ public sealed class ILRepack(IPipelineContext context)
 
         try
         {
-            await context.Command.ExecuteCommandLineTool(new CommandLineToolOptions("dotnet")
+            await dotNet.Tool.Execute(new DotNetToolOptions
             {
-                Arguments =
-                [
-                    "tool",
-                    "install",
-                    "--tool-path", _temporaryFolder.Path,
-                    "dotnet-ilrepack"
-                ]
-            }, cancellationToken);
-            // await context.DotNet().Tool.Install(new DotNetToolInstallOptions("dotnet-ilrepack")
-            // {
-            //     ToolPath = _temporaryFolder.Path
-            // }, cancellationToken);
+                Arguments = ["install", "dotnet-ilrepack", "--tool-path", _temporaryFolder.Path]
+            }, cancellationToken: cancellationToken);
 
-            return await context.Command.ExecuteCommandLineTool(options with
+            return await command.ExecuteCommandLineTool(options with
             {
-                Tool = Path.Combine(_temporaryFolder.Path, options.Tool)
-            }, cancellationToken);
+                Tool = _temporaryFolder.GetFile("ilrepack.exe")
+            }, cancellationToken: cancellationToken);
         }
         finally
         {
