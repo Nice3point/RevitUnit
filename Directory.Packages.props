@@ -8,9 +8,9 @@
 
     <ItemGroup>
         <!-- Revit Platform -->
-        <PackageVersion Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
-        <PackageVersion Include="Nice3point.Revit.Api.RevitNET" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
-        <PackageVersion Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*" Condition="$(RevitVersion) != ''"/>
+        <PackageVersion Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*-*" Condition="$(RevitVersion) != ''"/>
+        <PackageVersion Include="Nice3point.Revit.Api.RevitNET" Version="$(RevitVersion).*-*" Condition="$(RevitVersion) != ''"/>
+        <PackageVersion Include="Nice3point.Revit.Injector" Version="$(RevitVersion).*-*" Condition="$(RevitVersion) != ''"/>
 
         <!-- Core Dependencies -->
         <PackageVersion Include="PolyHook2.NET" Version="1.1.3"/>
