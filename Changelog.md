@@ -1,3 +1,7 @@
+# 2026.1.0-preview.1.20260119
+
+- Revit 2027 support
+
 # 2026.0.3
 
 - Changed the Revit initialization lifecycle. Now Revit is initialized [before TestDiscovery](https://tunit.dev/docs/test-lifecycle/lifecycle-overview) to support Data sources.
