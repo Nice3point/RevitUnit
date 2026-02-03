@@ -16,6 +16,7 @@ namespace Build.Modules;
 /// </summary>
 [DependsOn<UpdateNugetSourceModule>]
 [DependsOn<ResolveConfigurationsModule>]
+[DependsOn<CleanProjectsModule>(Optional = true)]
 public sealed class CompileProjectsModule(IOptions<BuildOptions> buildOptions) : Module
 {
     protected override async Task ExecuteModuleAsync(IModuleContext context, CancellationToken cancellationToken)

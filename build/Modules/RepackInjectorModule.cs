@@ -25,10 +25,11 @@ public sealed class RepackInjectorModule : Module
 
         foreach (var folder in targetFolders)
         {
-            var primaryAssembly = folder.GetFile($"{targetProject.NameWithoutExtension}.dll");
-            var primaryPdb = new File(Path.ChangeExtension(primaryAssembly.Path, ".pdb"));
+            var primaryAssembly = folder.FindFile(file => file.NameWithoutExtension == targetProject.NameWithoutExtension && file.Extension == ".dll");
+            targetFolders.ShouldNotBeNull("No primary assembly found to repack");
 
-            var dependenciesFolder = folder.GetFolder("Dependencies");
+            var primaryPdb = new File(Path.ChangeExtension(primaryAssembly!.Path, ".pdb"));
+            var dependenciesFolder = primaryAssembly.Folder!.GetFolder("Dependencies");
             var dependencyAssembly = dependenciesFolder.GetFile("Nice3point.Revit.Injector.dll");
             dependencyAssembly.Exists.ShouldBeTrue("Dependency assembly not found.");
 
