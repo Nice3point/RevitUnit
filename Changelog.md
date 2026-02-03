@@ -1,6 +1,8 @@
-# 2027.0.0-preview.1.20260119
+# 2027.0.0-preview.1.20260203
 
 - Revit 2027 support
+- Fix ExecutionContext to capture AsyncLocal values like TestContext
+- Update Readme to include Global TestContext registration example
 
 # 2026.0.4
 
