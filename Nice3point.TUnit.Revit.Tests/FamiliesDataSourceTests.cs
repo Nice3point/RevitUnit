@@ -42,8 +42,10 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange & Act
             document = Application.OpenDocumentFile(filePath);
 
+            // Assert
             await Assert.That(document).IsNotNull();
             await Assert.That(document.IsValidObject).IsTrue();
             await Assert.That(document.PathName).IsEqualTo(filePath);
@@ -63,8 +65,10 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange & Act
             document = Application.OpenDocumentFile(filePath);
 
+            // Assert
             await Assert.That(document.IsFamilyDocument).IsTrue();
             await Assert.That(document.FamilyManager).IsNotNull();
             await Assert.That(document.FamilyManager.Types.Size).IsGreaterThanOrEqualTo(1);
@@ -84,8 +88,10 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange
             document = Application.OpenDocumentFile(filePath);
 
+            // Act
             var elementTypes = new FilteredElementCollector(document)
                 .WhereElementIsElementType()
                 .ToElements();
@@ -111,12 +117,15 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange
             document = Application.OpenDocumentFile(filePath);
 
+            //Act
             var allElements = new FilteredElementCollector(document)
                 .WhereElementIsNotElementType()
                 .ToElements();
 
+            // Assert
             await Assert.That(allElements).IsNotEmpty();
         }
         finally
@@ -134,11 +143,14 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange
             document = Application.OpenDocumentFile(filePath);
 
+            // Act
             var familyManager = document.FamilyManager;
             var parameters = familyManager.Parameters.Cast<FamilyParameter>().ToList();
 
+            // Assert
             await Assert.That(parameters).IsNotEmpty();
         }
         finally
@@ -156,10 +168,13 @@ public sealed class FamiliesDataSourceTests : RevitApiTest
 
         try
         {
+            // Arrange
             document = Application.OpenDocumentFile(filePath);
 
+            // Act
             var units = document.GetUnits();
 
+            // Assert
             await Assert.That(units).IsNotNull();
         }
         finally

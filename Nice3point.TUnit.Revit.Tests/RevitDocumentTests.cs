@@ -32,10 +32,12 @@ public sealed class RevitDocumentTests : RevitApiTest
     [TestExecutor<RevitThreadExecutor>]
     public async Task FilteredElementCollector_ElementTypes_ValidAssignable()
     {
+        // Arrange & Act
         var elements = new FilteredElementCollector(_documentFile)
             .WhereElementIsElementType()
             .ToElements();
 
+        // Assert
         using (Assert.Multiple())
         {
             await Assert.That(elements).IsNotEmpty();
@@ -48,6 +50,7 @@ public sealed class RevitDocumentTests : RevitApiTest
     [DependsOn(nameof(FilteredElementCollector_ElementTypes_ValidAssignable))]
     public async Task Delete_Dimensions_ElementsWithDependenciesDeleted()
     {
+        // Arrange
         var elementIds = new FilteredElementCollector(_documentFile)
             .WhereElementIsNotElementType()
             .OfCategory(BuiltInCategory.OST_Dimensions)
@@ -61,11 +64,13 @@ public sealed class RevitDocumentTests : RevitApiTest
             .ToList();
 #endif
 
+        // Act
         using var transaction = new Transaction(_documentFile);
         transaction.Start("Delete dimensions");
         var deletedElements = _documentFile!.Delete(elementIds);
         transaction.Commit();
 
+        // Assert
         await Assert.That(deletedElements.Count).IsGreaterThanOrEqualTo(elementIds.Count);
     }
 }

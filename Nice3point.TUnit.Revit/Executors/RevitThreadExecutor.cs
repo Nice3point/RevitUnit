@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using TUnit.Core.Interfaces;
 
 namespace Nice3point.TUnit.Revit.Executors;
 
@@ -11,7 +12,7 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// which is necessary for operations that interact with the Revit API.
 /// Uses a shared STA thread with custom task scheduling for all tests.
 /// </remarks>
-public sealed class RevitThreadExecutor : GenericAbstractExecutor
+public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
 {
     private static BlockingCollection<Action>? _executionQueue;
     private static readonly Lock InitializationLock = new();
@@ -28,7 +29,25 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
 
         var tcs = new TaskCompletionSource<object?>();
 
-        _executionQueue!.Add(() => ExecuteAsyncActionWithMessagePump(action, tcs));
+        // Capture ExecutionContext (including AsyncLocal values like TestContext.Current)
+        var executionContext = ExecutionContext.Capture();
+        var state = (action, tcs);
+
+        _executionQueue!.Add(() =>
+        {
+            if (executionContext != null)
+            {
+                ExecutionContext.Run(executionContext, static state =>
+                {
+                    var (action, tcs) = (ValueTuple<Func<ValueTask>, TaskCompletionSource<object?>>)state!;
+                    ExecuteAsyncActionWithMessagePump(action, tcs);
+                }, state);
+            }
+            else
+            {
+                ExecuteAsyncActionWithMessagePump(action, tcs);
+            }
+        });
 
         await tcs.Task;
     }
@@ -79,9 +98,14 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
 
             try
             {
-                var task = Task.Factory.StartNew(async () => await action(), CancellationToken.None, TaskCreationOptions.None, taskScheduler).Unwrap();
+                var task = Task.Factory.StartNew(static async action =>
+                {
+                    // Inside this task, TaskScheduler.Current will be our scheduler
+                    await ((Func<ValueTask>)action!)();
+                }, action, CancellationToken.None, TaskCreationOptions.None, taskScheduler).Unwrap();
 
                 // Try fast path first - many tests complete quickly
+                // Use IsCompleted to avoid synchronous wait
                 if (task.IsCompleted)
                 {
                     HandleTaskCompletion(task, tcs);
@@ -165,21 +189,38 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor
         thread.SetApartmentState(ApartmentState.STA);
         thread.IsBackground = true;
     }
+
+    /// <summary>
+    ///     Set parallel limit to 1 for all Revit api tests.
+    /// </summary>
+    public ValueTask OnTestRegistered(TestRegisteredContext context)
+    {
+        context.SetParallelLimiter(new RevitCountParallelLimit());
+        return default;
+    }
+}
+
+file sealed class RevitCountParallelLimit : IParallelLimit
+{
+    public int Limit => 1;
 }
 
 file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAvailableEvent) : SynchronizationContext
 {
+    private Queue<(SendOrPostCallback callback, object? state)>? _workQueue;
     private readonly Thread _dedicatedThread = Thread.CurrentThread;
-    private readonly Queue<(SendOrPostCallback callback, object? state)> _workQueue = new();
     private readonly Lock _queueLock = new();
 
-    public override void Post(SendOrPostCallback d, object? state)
+    public override void Post(SendOrPostCallback callback, object? state)
     {
+        // Always queue the work to ensure it runs on the dedicated thread
         lock (_queueLock)
         {
-            _workQueue.Enqueue((d, state));
+            _workQueue ??= new Queue<(SendOrPostCallback callback, object? state)>();
+            _workQueue.Enqueue((callback, state));
         }
 
+        // Signal that work is available (wake message pump immediately)
         workAvailableEvent?.Set();
     }
 
@@ -187,10 +228,13 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
     {
         if (Thread.CurrentThread == _dedicatedThread)
         {
+            // We're already on the dedicated thread, execute immediately
             callback(state);
         }
         else
         {
+            // For Send, we need to block until completion
+            // Use Task.Run to avoid potential deadlocks by ensuring we don't capture any synchronization context
             var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             Post(_ =>
@@ -206,8 +250,12 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
                 }
             }, null);
 
+            // Use a more robust synchronous wait pattern to avoid deadlocks
+            // We use Task.Run to ensure we don't capture the current SynchronizationContext
+            // which is a common cause of deadlocks
             var waitTask = Task.Run(async () =>
             {
+                // For .NET Standard 2.0 compatibility, use Task.Delay for timeout
                 var timeoutTask = Task.Delay(TimeSpan.FromMinutes(30));
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask).ConfigureAwait(false);
 
@@ -216,15 +264,18 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
                     throw new TimeoutException("Synchronous operation on Revit thread timed out after 30 minutes");
                 }
 
+                // Await the actual task to get its result or exception
                 await tcs.Task.ConfigureAwait(false);
             });
 
+            // This wait is safe because it's on a Task.Run thread without SynchronizationContext
             waitTask.GetAwaiter().GetResult();
         }
     }
 
     public bool ProcessPendingWork()
     {
+        // Only the dedicated thread should call this
         if (Thread.CurrentThread != _dedicatedThread)
         {
             return false;
@@ -237,7 +288,7 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
 
             lock (_queueLock)
             {
-                if (_workQueue.Count == 0)
+                if (_workQueue == null || _workQueue.Count == 0)
                 {
                     break;
                 }
@@ -252,7 +303,8 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
             }
             catch
             {
-                // Swallow exceptions to avoid crashing the message pump
+                // Swallow exceptions in work items to avoid crashing the message pump
+                // The exception will be handled by the async machinery
             }
         }
 
@@ -277,12 +329,14 @@ file sealed class RevitThreadTaskScheduler(Thread dedicatedThread, ManualResetEv
             _taskQueue.Add(task);
         }
 
+        // Signal that work is available (wake message pump immediately)
         workAvailableEvent?.Set();
     }
 
     protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
     {
         // ALWAYS execute inline if we're on the dedicated thread
+        // This is crucial for capturing continuations that would otherwise escape
         if (Thread.CurrentThread == dedicatedThread)
         {
             if (taskWasPreviouslyQueued)
@@ -299,7 +353,7 @@ file sealed class RevitThreadTaskScheduler(Thread dedicatedThread, ManualResetEv
             return TryExecuteTask(task);
         }
 
-        // If we're not on the dedicated thread, queue it
+        // If we're not on the dedicated thread, queue it to be executed later
         if (!taskWasPreviouslyQueued)
         {
             QueueTask(task);
