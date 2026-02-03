@@ -13,7 +13,7 @@
         <BuildType Name="Release.R24"/>
         <BuildType Name="Release.R25"/>
         <BuildType Name="Release.R26"/>
-        <BuildType Name="Release.R27"/>
+        <!--        <BuildType Name="Release.R27"/>-->
     </Configurations>
     <Folder Name="/Solution Items/">
         <File Path="build/appsettings.json"/>
