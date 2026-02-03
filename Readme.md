@@ -52,6 +52,28 @@ public class MyTestClass : RevitApiTest
 
 This is your runnable test. The `[TestExecutor<RevitThreadExecutor>]` attribute ensures the test executes within Revit's single-threaded API context.
 
+### Global executor configuration
+
+To avoid repeating the `TestExecutor` attribute for every test, you can [register](https://tunit.dev/docs/advanced/extension-points/#registering-a-test-executor) the executor globally using one of the following methods:
+
+- Add the attribute to any .cs file in your project (e.g., AssemblyInfo.cs):
+    ```csharp
+    using Nice3point.TUnit.Revit.Executors;
+    using TUnit.Core.Executors;
+    
+    [assembly: TestExecutor<RevitThreadExecutor>]
+    ```
+- Add the attribute directly to your .csproj file:
+    ```xml
+    <!-- Global Test Executor Registration -->
+    <ItemGroup>
+        <AssemblyAttribute Include="TUnit.Core.Executors.TestExecutorAttribute">
+            <_Parameter1>typeof(Nice3point.TUnit.Revit.Executors.RevitThreadExecutor)</_Parameter1>
+            <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+        </AssemblyAttribute>
+    </ItemGroup>
+    ```
+
 ## Running your tests
 
 **TUnit** is built on top of the **Microsoft.Testing.Platform**. Combined with source-generated tests, running your tests is available in multiple ways.
