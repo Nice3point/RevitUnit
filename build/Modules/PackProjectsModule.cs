@@ -38,7 +38,7 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions) : Mo
         }
     }
 
-    private async Task<CommandResult> PackAsync(IPipelineContext context,
+    private async Task<CommandResult> PackAsync(IModuleContext context,
         string configuration,
         string? changelog,
         string output,

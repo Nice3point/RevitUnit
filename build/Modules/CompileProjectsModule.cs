@@ -30,7 +30,7 @@ public sealed class CompileProjectsModule(IOptions<BuildOptions> buildOptions) :
         }
     }
 
-    private async Task<CommandResult> CompileAsync(IPipelineContext context, string configuration, CancellationToken cancellationToken)
+    private async Task<CommandResult> CompileAsync(IModuleContext context, string configuration, CancellationToken cancellationToken)
     {
         buildOptions.Value.Versions
             .TryGetValue(configuration, out var version)
