@@ -24,7 +24,7 @@
         <PackageVersion Include="ILRepack" Version="2.0.44"/>
 
         <!-- Testing -->
-        <PackageVersion Include="TUnit" Version="1.12.125"/>
+        <PackageVersion Include="TUnit" Version="1.13.11"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
 
         <!-- Development Tools -->
