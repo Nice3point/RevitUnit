@@ -224,7 +224,7 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
     
-    [assembly: RevitLanguage("ENG")]
+    [assembly: RevitLanguage("ENU")]
     [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
     ```
 
@@ -235,7 +235,7 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     <ItemGroup>
   
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitLanguageAttribute">
-            <_Parameter1>ENG</_Parameter1>
+            <_Parameter1>ENU</_Parameter1>
         </AssemblyAttribute>
   
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitInstallationPathAttribute">
