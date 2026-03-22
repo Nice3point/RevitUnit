@@ -134,14 +134,14 @@ public sealed class LocalizationNameFilterTests : RevitApiTest
 ///     Globally skips tests whose method name contains a language identifier that doesn't match the current Revit localization.
 /// </summary>
 /// <remarks>Applies to all tests in the project.</remarks>
-public static class GlobalLocalizationSkipConfiguration
+public sealed class GlobalLocalizationSkipConfiguration : RevitApiTest
 {
     private static readonly string[] Languages = Enum.GetNames<LanguageType>();
 
     [BeforeEvery(Test)]
     public static void SkipUnmatchedLocalization(TestContext context)
     {
-        var currentLanguage = RevitApiContext.Application.Language.ToString();
+        var currentLanguage = Application.Language.ToString();
         foreach (var language in Languages)
         {
             if (!context.Metadata.TestName.Contains(language, StringComparison.OrdinalIgnoreCase)) continue;
