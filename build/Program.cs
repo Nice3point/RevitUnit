@@ -28,6 +28,7 @@ if (args.Contains("clean-nuget"))
 
 if (args.Contains("test"))
 {
+    builder.Services.AddModule<CleanProjectsModule>();
     builder.Services.AddModule<TestProjectsModule>();
 }
 
