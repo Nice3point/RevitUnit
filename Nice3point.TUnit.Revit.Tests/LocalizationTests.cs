@@ -148,7 +148,7 @@ public static class GlobalLocalizationSkipConfiguration
 
             if (!currentLanguage.Equals(language, StringComparison.OrdinalIgnoreCase))
             {
-                Skip.Test($"Test targets {language}");
+                Skip.Test($"This test is only supported on {language} localization");
             }
 
             return;
