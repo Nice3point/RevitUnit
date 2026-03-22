@@ -11,7 +11,7 @@ public class RevitModelSampleTest : RevitApiTest
     private protected Dictionary<string, Document> ModelDocuments { get; } = [];
 
     public static string[] RevitModels { get; } = Directory.Exists(SamplesPath)
-        ? Directory.EnumerateFiles(SamplesPath, "*.rfa")
+        ? Directory.EnumerateFiles(SamplesPath, "*.rvt")
             .Select(path => new FileInfo(path))
             .OrderBy(file => file.Length)
             .Take(1)
@@ -25,7 +25,7 @@ public class RevitModelSampleTest : RevitApiTest
     {
         foreach (var path in RevitModels)
         {
-            var isolatedPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.rfa");
+            var isolatedPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.rvt");
             File.Copy(path, isolatedPath);
 
             ModelDocuments[path] = Application.OpenDocumentFile(isolatedPath);
