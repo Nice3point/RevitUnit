@@ -244,9 +244,9 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
                     callback(state);
                     tcs.SetResult(null);
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
-                    tcs.SetException(ex);
+                    tcs.SetException(exception);
                 }
             }, null);
 
@@ -256,12 +256,12 @@ file sealed class RevitThreadSynchronizationContext(ManualResetEventSlim? workAv
             var waitTask = Task.Run(async () =>
             {
                 // For .NET Standard 2.0 compatibility, use Task.Delay for timeout
-                var timeoutTask = Task.Delay(TimeSpan.FromMinutes(30));
+                var timeoutTask = Task.Delay(Defaults.TestTimeout);
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask).ConfigureAwait(false);
 
                 if (completedTask == timeoutTask)
                 {
-                    throw new TimeoutException("Synchronous operation on Revit thread timed out after 30 minutes");
+                    throw new TimeoutException($"Synchronous operation on Revit thread timed out after {Defaults.TestTimeout.TotalMinutes} minutes");
                 }
 
                 // Await the actual task to get its result or exception
@@ -343,10 +343,7 @@ file sealed class RevitThreadTaskScheduler(Thread dedicatedThread, ManualResetEv
             {
                 lock (_queueLock)
                 {
-                    if (_taskQueue.Contains(task))
-                    {
-                        _taskQueue.Remove(task);
-                    }
+                    _taskQueue.Remove(task);
                 }
             }
 
