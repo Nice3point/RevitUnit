@@ -3,7 +3,74 @@ using Nice3point.TUnit.Revit.Tests.Attributes;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
-public sealed class LocalizationTests : RevitApiTest
+/// <summary>
+///     Skips all tests in the class that don't match the current Revit localization.
+/// </summary>
+public sealed class LocalizationHookTests : RevitApiTest
+{
+    [Before(Test)]
+    public void SkipUnmatchedLocalization()
+    {
+        if (Application.Language != LanguageType.English_USA)
+        {
+            Skip.Test("This test is only supported on English localization");
+        }
+    }
+
+    [Test]
+    public async Task Cities_English_ValidName()
+    {
+        // Arrange & Act
+        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+
+        // Assert
+        await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
+    }
+}
+
+/// <summary>
+///     Skips tests that don't match the current Revit localization using attributes.
+/// </summary>
+public sealed class LocalizationAttributeTests : RevitApiTest
+{
+    [Test]
+    [EnglishLocalizationOnly]
+    public async Task Cities_English_ValidName()
+    {
+        // Arrange & Act
+        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+
+        // Assert
+        await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
+    }
+
+    [Test]
+    [RussianLocalizationOnly]
+    public async Task Cities_Russian_ValidName()
+    {
+        // Arrange & Act
+        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+
+        // Assert
+        await Assert.That(city.Name).IsEqualTo("Абердин, MD");
+    }
+
+    [Test]
+    [ChineseLocalizationOnly]
+    public async Task Cities_Chinese_ValidName()
+    {
+        // Arrange & Act
+        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+
+        // Assert
+        await Assert.That(city.Name).IsEqualTo("K.I.索耶空军基地，密歇根");
+    }
+}
+
+/// <summary>
+///     Skips tests dynamically based on the current Revit localization.
+/// </summary>
+public sealed class LocalizationDynamicSkipTests : RevitApiTest
 {
     [Test]
     public async Task Cities_RandomCity_ValidLocalizedName()
@@ -25,7 +92,13 @@ public sealed class LocalizationTests : RevitApiTest
                 break;
         }
     }
+}
 
+/// <summary>
+///     Skips tests whose method name contains a language identifier that doesn't match the current Revit localization.
+/// </summary>
+public sealed class LocalizationNameFilterTests : RevitApiTest
+{
     [Test]
     public async Task Cities_English_USA_ValidName()
     {
@@ -55,37 +128,30 @@ public sealed class LocalizationTests : RevitApiTest
         // Assert
         await Assert.That(city.Name).IsEqualTo("K.I.索耶空军基地，密歇根");
     }
-
-    [Test]
-    [EnglishLocalizationOnly]
-    public async Task Cities_EnglishAttribute_ValidName()
-    {
-        // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
-
-        // Assert
-        await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
-    }
 }
 
-public sealed class LocalizationEnglishTests : RevitApiTest
+/// <summary>
+///     Globally skips tests whose method name contains a language identifier that doesn't match the current Revit localization.
+/// </summary>
+/// <remarks>Applies to all tests in the project.</remarks>
+public static class GlobalLocalizationSkipConfiguration
 {
-    [Before(Test)]
-    public void SkipUnmatchedLocalization()
+    private static readonly string[] Languages = Enum.GetNames<LanguageType>();
+
+    [BeforeEvery(Test)]
+    public static void SkipUnmatchedLocalization(TestContext context)
     {
-        if (Application.Language != LanguageType.English_USA)
+        var currentLanguage = RevitApiContext.Application.Language.ToString();
+        foreach (var language in Languages)
         {
-            Skip.Test("This test is only supported on English localisation");
+            if (!context.Metadata.TestName.Contains(language, StringComparison.OrdinalIgnoreCase)) continue;
+
+            if (!currentLanguage.Equals(language, StringComparison.OrdinalIgnoreCase))
+            {
+                Skip.Test($"Test targets {language}");
+            }
+
+            return;
         }
-    }
-
-    [Test]
-    public async Task Cities_EnglishAttribute_ValidName()
-    {
-        // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
-
-        // Assert
-        await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
     }
 }
