@@ -11,7 +11,7 @@ TUnit initializes Revit with the `English - United States` language. To override
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
     
-    [assembly: RevitLanguage("ENG")]
+    [assembly: RevitLanguage("ENU")]
     ```
 
 - Add the attributes directly to your .csproj file:
@@ -20,7 +20,7 @@ TUnit initializes Revit with the `English - United States` language. To override
     <!-- Revit Environment Configuration -->
     <ItemGroup>
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitLanguageAttribute">
-            <_Parameter1>ENG</_Parameter1>
+            <_Parameter1>ENU</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
     ```
