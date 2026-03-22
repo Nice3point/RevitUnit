@@ -51,10 +51,10 @@ public sealed class PackProjectsModule(IOptions<BuildOptions> buildOptions) : Mo
         await context.DotNet().Restore(new DotNetRestoreOptions
         {
             ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
-            Properties = new List<KeyValue>
-            {
+            Properties =
+            [
                 ("Configuration", configuration)
-            }
+            ]
         }, cancellationToken: cancellationToken);
 
         return await context.DotNet().Pack(new DotNetPackOptions

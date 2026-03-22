@@ -40,10 +40,10 @@ public sealed class CompileProjectsModule(IOptions<BuildOptions> buildOptions) :
         {
             ProjectSolution = Projects.Nice3point_TUnit_Revit.FullName,
             Configuration = configuration,
-            Properties = new List<KeyValue>
-            {
+            Properties =
+            [
                 ("Version", version)
-            }
+            ]
         }, cancellationToken: cancellationToken);
     }
 }
