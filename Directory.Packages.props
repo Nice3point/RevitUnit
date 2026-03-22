@@ -10,7 +10,6 @@
     <!-- Revit Dependencies -->
     <ItemGroup>
         <PackageVersion Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*-*" Condition="$(RevitVersion) != ''"/>
-        <PackageVersion Include="Nice3point.Revit.Api.RevitNET" Version="$(RevitVersion).*-*" Condition="$(RevitVersion) != ''"/>
 
         <PackageVersion Include="Nice3point.Revit.Injector" Version="2021.1.0-preview.8.20260322" Condition="$(RevitVersion) == '2021'"/>
         <PackageVersion Include="Nice3point.Revit.Injector" Version="2022.1.0-preview.8.20260322" Condition="$(RevitVersion) == '2022'"/>
