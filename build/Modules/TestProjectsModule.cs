@@ -3,7 +3,6 @@ using ModularPipelines.Conditions;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Extensions;
 using ModularPipelines.DotNet.Options;
-using ModularPipelines.Models;
 using ModularPipelines.Modules;
 using Sourcy.DotNet;
 
@@ -21,22 +20,35 @@ public sealed class TestProjectsModule : Module
     {
         var configurationsResult = await context.GetModule<ResolveConfigurationsModule>();
         var configurations = configurationsResult.ValueOrDefault!;
+        string[] languages =
+        [
+            "ENU",
+            "RUS",
+            "CHS"
+        ];
 
-        foreach (var configuration in configurations)
+        foreach (var configuration in configurations.Where(configuration => !configuration.Contains("27")))
         {
-            await context.SubModule(configuration, async () => await CompileAsync(context, configuration, cancellationToken));
+            foreach (var language in languages)
+            {
+                await context.SubModule($"{configuration}|{language}", async () => await TestAsync(context, configuration, language, cancellationToken));
+            }
         }
     }
 
     /// <summary>
-    ///     Test the add-in project for the specified configuration.
+    ///     Test the project for the specified Revit configuration.
     /// </summary>
-    private static async Task<CommandResult> CompileAsync(IModuleContext context, string configuration, CancellationToken cancellationToken)
+    private static async Task TestAsync(IModuleContext context, string configuration, string language, CancellationToken cancellationToken)
     {
-        return await context.DotNet().Test(new DotNetTestOptions
+        await context.DotNet().Test(new DotNetTestOptions
         {
-            Solution = Solutions.Nice3point_TUnit_Revit.FullName,
-            Configuration = configuration
+            Project = Projects.Nice3point_TUnit_Revit_Tests.FullName,
+            Configuration = configuration,
+            Properties =
+            [
+                ("RevitLanguage", language)
+            ]
         }, cancellationToken: cancellationToken);
     }
 }
