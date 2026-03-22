@@ -233,12 +233,15 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     ```xml
     <!-- Revit Environment Configuration -->
     <ItemGroup>
+  
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitLanguageAttribute">
             <_Parameter1>ENG</_Parameter1>
         </AssemblyAttribute>
+  
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitInstallationPathAttribute">
             <_Parameter1>D:\Autodesk\Revit $(RevitVersion)</_Parameter1>
         </AssemblyAttribute>
+  
     </ItemGroup>
     ```
 
