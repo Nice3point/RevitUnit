@@ -1,4 +1,3 @@
-using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests;
@@ -6,7 +5,6 @@ namespace Nice3point.TUnit.Revit.Tests;
 public sealed class TestContextTests : RevitApiTest
 {
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task TestContext_Current_ShouldNotBeNull_InRevitThreadExecutor()
     {
         // Arrange & Act
