@@ -20,7 +20,10 @@ public class RevitFamilySampleTest : RevitApiTest
             var isolatedPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.rfa");
             File.Copy(path, isolatedPath);
 
-            FamilyDocuments[path] = Application.OpenDocumentFile(isolatedPath);
+            using (RevitApiContext.BeginFailureSuppressionScope())
+            {
+                FamilyDocuments[path] = Application.OpenDocumentFile(isolatedPath);
+            }
         }
     }
 

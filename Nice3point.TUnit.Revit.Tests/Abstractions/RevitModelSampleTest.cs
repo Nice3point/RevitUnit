@@ -28,7 +28,10 @@ public class RevitModelSampleTest : RevitApiTest
             var isolatedPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.rvt");
             File.Copy(path, isolatedPath);
 
-            ModelDocuments[path] = Application.OpenDocumentFile(isolatedPath);
+            using (RevitApiContext.BeginFailureSuppressionScope())
+            {
+                ModelDocuments[path] = Application.OpenDocumentFile(isolatedPath);
+            }
         }
     }
 

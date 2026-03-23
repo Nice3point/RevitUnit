@@ -20,6 +20,7 @@
     <ItemGroup>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPI"/>
         <PackageReference Include="Nice3point.Revit.Injector"/>
+        <PackageReference Include="Nice3point.Revit.Toolkit"/>
     </ItemGroup>
 
     <ItemGroup>
