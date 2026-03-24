@@ -29,6 +29,7 @@ public sealed class FamilySampleTests : RevitFamilySampleTest
             .WhereElementIsElementType()
             .ToElements();
 
+        // Assert
         using (Assert.Multiple())
         {
             await Assert.That(elementTypes).IsNotEmpty();

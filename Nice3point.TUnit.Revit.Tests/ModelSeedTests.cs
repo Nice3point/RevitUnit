@@ -1,4 +1,3 @@
-using Nice3point.Revit.Injector;
 using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 
@@ -17,7 +16,6 @@ public sealed class ModelSeedTests : RevitApiTest
     {
         _document = Application.NewProjectDocument(UnitSystem.Metric);
 
-        InjectorInitializer.InitializeModule();
         using var transaction = new Transaction(_document, "Seed model");
         transaction.Start();
 
