@@ -113,7 +113,8 @@ public sealed class ApplicationTests : RevitApiTest
 ## Document testing
 
 Tests that pass alone but fail together are a classic sign of shared state. Give each test its own document — created in `[Before(Test)]`, closed in `[After(Test)]` — and that problem disappears entirely.
-Use the setup hook to seed the document with exactly the state each test needs.
+Use the setup hook to seed the document with exactly the state each test needs. Feel free to use `[Before(Class)]` hook for read-only tests.
+
 The `[HookExecutor<RevitThreadExecutor>]` attribute ensures hooks also run on Revit's thread:
 
 ```csharp
