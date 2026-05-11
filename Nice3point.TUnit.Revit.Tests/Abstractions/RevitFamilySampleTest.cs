@@ -8,7 +8,7 @@ public class RevitFamilySampleTest : RevitApiTest
 {
     private static readonly string SamplesPath = $@"C:\Program Files\Autodesk\Revit {RevitEnvironment.MajorVersion}\Samples";
 
-    private protected Dictionary<string, Document> FamilyDocuments { get; } = [];
+    private protected Dictionary<string, Document> FamilyDocuments => field ??= new Dictionary<string, Document>();
     public static string[] RevitFamilies { get; } = Directory.Exists(SamplesPath) ? Directory.EnumerateFiles(SamplesPath, "*.rfa").ToArray() : [];
 
     [Before(Test)]
