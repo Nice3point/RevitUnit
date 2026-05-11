@@ -9,4 +9,8 @@
         <NoWarn>$(NoWarn);NU1507</NoWarn>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PolyArgumentExceptions>true</PolyArgumentExceptions>
+    </PropertyGroup>
+    
 </Project>

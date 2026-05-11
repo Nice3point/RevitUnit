@@ -8,7 +8,7 @@ public class RevitModelSampleTest : RevitApiTest
 {
     private static readonly string SamplesPath = $@"C:\Program Files\Autodesk\Revit {RevitEnvironment.MajorVersion}\Samples";
 
-    private protected Dictionary<string, Document> ModelDocuments { get; } = [];
+    private protected Dictionary<string, Document> ModelDocuments => field ??= new Dictionary<string, Document>();
 
     public static string[] RevitModels { get; } = Directory.Exists(SamplesPath)
         ? Directory.EnumerateFiles(SamplesPath, "*.rvt")

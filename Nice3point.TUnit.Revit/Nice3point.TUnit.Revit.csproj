@@ -49,6 +49,10 @@
         <FrameworkReference Include="Microsoft.WindowsDesktop.App"/>
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+        <Reference Include="WindowsBase"/>
+    </ItemGroup>
+
     <Target Name="CopyRepackDependencies" AfterTargets="Build" Condition="$(Configuration.Contains('Release'))">
         <PropertyGroup>
             <DependenciesFolder>$(OutDir)Dependencies</DependenciesFolder>
