@@ -1,3 +1,23 @@
+# 2027.0.1
+
+- Updated TUnit to 1.44
+- Reworked `RevitThreadExecutor`, fixing crashes and thread-affinity issues
+- TUnit 1.33 changed the order in which test classes are initialised: instance field initialisers now run before the Revit session hook.
+  Field initialisers that previously worked are no longer safe, because they load Revit API types before the application is injected.
+  Rewrite them lazily https://github.com/Nice3point/RevitUnit/commit/c92b6b99855c2a14bd0dff5cf9c6ccb7802c8ebd#diff-6f718c2ac5a94cce0c4a11e9d8c457891d449eb7b32ba49e8b7595d0a2b42cdb.
+
+  Before:
+
+  ```csharp
+  private protected Dictionary<string, Document> Documents { get; } = [];
+  ```
+
+  After:
+
+  ```csharp
+  private protected Dictionary<string, Document> Documents => field ??= new();
+  ```
+
 # 2027.0.0
 
 This release adds support for Revit 2027, testing for different languages and custom Revit installation path.
