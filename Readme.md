@@ -113,7 +113,8 @@ public sealed class ApplicationTests : RevitApiTest
 ## Document testing
 
 Tests that pass alone but fail together are a classic sign of shared state. Give each test its own document — created in `[Before(Test)]`, closed in `[After(Test)]` — and that problem disappears entirely.
-Use the setup hook to seed the document with exactly the state each test needs.
+Use the setup hook to seed the document with exactly the state each test needs. Feel free to use `[Before(Class)]` hook for read-only tests.
+
 The `[HookExecutor<RevitThreadExecutor>]` attribute ensures hooks also run on Revit's thread:
 
 ```csharp
@@ -194,7 +195,7 @@ More examples, including parametrized model and family tests, are available in t
 
 To avoid repeating the `TestExecutor` attribute for every test, you can [register](https://tunit.dev/docs/advanced/extension-points/#registering-a-test-executor) the executor globally using one of the following methods:
 
-- Add the attribute to any .cs file in your project (e.g., TestsConfiguration.cs):
+- Add the assembly-level attribute to any .cs file in your project (e.g., TestsConfiguration.cs):
 
     ```csharp
     using Nice3point.TUnit.Revit.Executors;
@@ -203,7 +204,7 @@ To avoid repeating the `TestExecutor` attribute for every test, you can [registe
     [assembly: TestExecutor<RevitThreadExecutor>]
     ```
 
-- Add the attribute directly to your .csproj file:
+- Or add the attribute directly to your .csproj file:
 
     ```xml
     <!-- Global Test Executor Registration -->
@@ -217,9 +218,9 @@ To avoid repeating the `TestExecutor` attribute for every test, you can [registe
 
 ### Revit Environment
 
-TUnit initializes Revit with the `English - United States` language and the `C:\Program Files\Autodesk\Revit {version}` installation path. To override these defaults, use assembly-level attributes:
+TUnit initializes Revit with the `English - United States` language and the `C:\Program Files\Autodesk\Revit {version}` installation path. To override these defaults:
 
-- Add the attributes to any .cs file in your project (e.g., TestsConfiguration.cs):
+- Add the assembly-level attributes to any .cs file in your project (e.g., TestsConfiguration.cs):
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
@@ -228,7 +229,7 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
     ```
 
-- Add the attributes directly to your .csproj file:
+- Or add the attributes directly to your .csproj file:
 
     ```xml
     <!-- Revit Environment Configuration -->
