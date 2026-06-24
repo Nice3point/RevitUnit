@@ -2,14 +2,14 @@ using Nice3point.TUnit.Revit.Tests.Abstractions;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
-public sealed class FamilySampleTests : RevitFamilySampleTest
+public sealed class FamilySampleTests() : RevitSampleTest(".rfa")
 {
     [Test]
-    [MethodDataSource(nameof(RevitFamilies))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task FamilyDocument_ValidFamily_HasFamilyManager(string path)
     {
         // Arrange & Act
-        var document = FamilyDocuments[path];
+        var document = OpenDocument(path);
 
         // Assert
         await Assert.That(document.IsFamilyDocument).IsTrue();
@@ -18,11 +18,11 @@ public sealed class FamilySampleTests : RevitFamilySampleTest
     }
 
     [Test]
-    [MethodDataSource(nameof(RevitFamilies))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task FilteredElementCollector_ElementTypes_ReturnsValidTypes(string path)
     {
         // Arrange
-        var document = FamilyDocuments[path];
+        var document = OpenDocument(path);
 
         // Act
         var elementTypes = new FilteredElementCollector(document)
@@ -38,13 +38,13 @@ public sealed class FamilySampleTests : RevitFamilySampleTest
     }
 
     [Test]
-    [MethodDataSource(nameof(RevitFamilies))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task FilteredElementCollector_AllElements_ReturnsNonEmptyCollection(string path)
     {
         // Arrange
-        var document = FamilyDocuments[path];
+        var document = OpenDocument(path);
 
-        //Act
+        // Act
         var allElements = new FilteredElementCollector(document)
             .WhereElementIsNotElementType()
             .ToElements();
@@ -54,11 +54,11 @@ public sealed class FamilySampleTests : RevitFamilySampleTest
     }
 
     [Test]
-    [MethodDataSource(nameof(RevitFamilies))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task Document_Parameters_ContainsBuiltInParameters(string path)
     {
         // Arrange
-        var document = FamilyDocuments[path];
+        var document = OpenDocument(path);
 
         // Act
         var familyManager = document.FamilyManager;
@@ -69,11 +69,11 @@ public sealed class FamilySampleTests : RevitFamilySampleTest
     }
 
     [Test]
-    [MethodDataSource(nameof(RevitFamilies))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task Document_Units_HasValidFormatOptions(string path)
     {
         // Arrange
-        var document = FamilyDocuments[path];
+        var document = OpenDocument(path);
 
         // Act
         var units = document.GetUnits();

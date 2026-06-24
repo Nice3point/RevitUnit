@@ -2,14 +2,16 @@
 
 namespace Nice3point.TUnit.Revit.Tests;
 
-public sealed class ModelSampleTests : RevitModelSampleTest
+public sealed class ModelSampleTests() : RevitSampleTest(".rvt")
 {
     [Test]
-    [MethodDataSource(nameof(RevitModels))]
+    [InstanceMethodDataSource(nameof(DocumentPaths))]
     public async Task FilteredElementCollector_ElementTypes_ValidAssignable(string path)
     {
-        // Arrange & Act
-        var document = ModelDocuments[path];
+        // Arrange
+        var document = OpenDocument(path);
+
+        // Act
         var elements = new FilteredElementCollector(document)
             .WhereElementIsElementType()
             .ToElements();
@@ -23,11 +25,11 @@ public sealed class ModelSampleTests : RevitModelSampleTest
     }
 
     [Test]
-    [MethodDataSource(nameof(RevitModels))]
+    [MethodDataSource(nameof(DocumentPaths))]
     public async Task Delete_Dimensions_ElementsWithDependenciesDeleted(string path)
     {
         // Arrange
-        var document = ModelDocuments[path];
+        var document = OpenDocument(path);
         var elementIds = new FilteredElementCollector(document)
             .WhereElementIsNotElementType()
             .OfCategory(BuiltInCategory.OST_Dimensions)
