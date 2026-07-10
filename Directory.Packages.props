@@ -38,7 +38,7 @@
         <PackageVersion Include="ModularPipelines.Git" Version="3.2.8"/>
         <PackageVersion Include="ModularPipelines.GitHub" Version="3.2.8"/>
         <PackageVersion Include="ModularPipelines.DotNet" Version="3.2.8"/>
-        <PackageVersion Include="ILRepack" Version="2.0.45"/>
+        <PackageVersion Include="ILRepack" Version="2.0.46"/>
 
         <!-- Testing -->
         <PackageVersion Include="TUnit" Version="1.45.0"/>
