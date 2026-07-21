@@ -31,60 +31,13 @@ Assertions, discovery, and data sources stay with TUnit; the framework connects 
 The thread host is a process-wide singleton that starts a background STA thread, runs a WPF `Dispatcher` on it, and hands work to that dispatcher.
 It is `file`-scoped, so only the executor reaches it.
 
-```csharp
-file sealed class RevitDispatcherThread
-{
-    private readonly Dispatcher _dispatcher;
-
-    private RevitDispatcherThread()
-    {
-        using var readyEvent = new ManualResetEventSlim(false);
-        Dispatcher? dispatcher = null;
-        var thread = new Thread(() =>
-        {
-            dispatcher = Dispatcher.CurrentDispatcher;
-            readyEvent.Set();
-            Dispatcher.Run();
-        })
-        {
-            IsBackground = true,
-            Name = "Revit API Thread",
-        };
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        readyEvent.Wait();
-        _dispatcher = dispatcher!;
-    }
-
-    public static RevitDispatcherThread Instance { get; } = new();
-}
-```
-
 Never start a second thread for Revit work, and never expose the dispatcher: the `Dispatcher` pumps the Win32 messages COM marshaling needs and routes `await` continuations back through `DispatcherSynchronizationContext`.
 
 ### Step 2: Marshal every Revit call through the executor
 
 `RevitThreadExecutor` is the only public entry point. It queues the action onto the thread host and returns a task that completes once the body and all of its continuations finish.
 
-```csharp
-public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
-{
-    protected override ValueTask ExecuteAsync(Func<ValueTask> action)
-    {
-        ArgumentNullException.ThrowIfNull(action);
-        return RevitDispatcherThread.Instance.InvokeAsync(action);
-    }
-
-    public ValueTask OnTestRegistered(TestRegisteredContext context)
-    {
-        context.SetParallelLimiter(RevitCountParallelLimit.Default);
-        return default;
-    }
-}
-```
-
-`InvokeAsync` uses `Dispatcher.InvokeAsync(...).Task.Unwrap()` so the returned `ValueTask` awaits the inner async work, not just its scheduling.
-A member that touches Revit reaches this executor through the assembly-level `[assembly: TestExecutor<RevitThreadExecutor>]` for tests, or `[HookExecutor<RevitThreadExecutor>]` for a hook.
+A member that touches Revit reaches this executor through `TestExecutor<RevitThreadExecutor>` for tests, or `[HookExecutor<RevitThreadExecutor>]` for a hook.
 
 ### Step 3: Cap Revit tests to one at a time
 
@@ -93,7 +46,6 @@ The parallel limiter keeps the Revit thread exclusive. Keep the limit at one; th
 ```csharp
 file sealed class RevitCountParallelLimit : IParallelLimit
 {
-    public static RevitCountParallelLimit Default { get; } = new();
     public int Limit => 1;
 }
 ```
@@ -101,25 +53,6 @@ file sealed class RevitCountParallelLimit : IParallelLimit
 ### Step 4: Own the connection in the base classes and inject and eject in matched pairs
 
 `RevitApplicationTest` holds the injector and the static `Application`; `RevitApiTest` opens the connection before the session and closes it after, both on the Revit thread.
-
-```csharp
-public abstract class RevitApiTest : RevitApplicationTest
-{
-    [Before(TestSession)]
-    [HookExecutor<RevitThreadExecutor>]
-    public static void RevitSessionSetup()
-    {
-        InitializeRevitConnection();
-    }
-
-    [After(TestSession)]
-    [HookExecutor<RevitThreadExecutor>]
-    public static void RevitSessionCleanup()
-    {
-        TerminateRevitConnection();
-    }
-}
-```
 
 `InitializeRevitConnection` creates the `Injector` and stores `InjectApplication()`; `TerminateRevitConnection` calls `EjectApplication()`.
 Every connection that opens must close on the matching session hook.
@@ -150,11 +83,11 @@ dotnet test -c Release.RNN
 
 ## Common Pitfalls
 
-| Pitfall                                                     | Correct approach                                                                        |
-|-------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| Starting a new thread or `Task.Run` for Revit work          | Route everything through `RevitDispatcherThread.Instance` via the executor.             |
-| Returning the dispatcher operation without unwrapping        | Await the inner task (`operation.Task.Unwrap()`) so continuations complete.             |
-| A Revit-touching `[Before]`/`[After]` hook with no executor  | Add `[HookExecutor<RevitThreadExecutor>]`; hooks do not inherit the assembly executor.  |
-| Injecting without a matching eject                           | Open in the session-setup hook, release in the matching session-cleanup hook.           |
-| Making the thread host or limiter public                     | Keep them `file sealed`; expose only the executor.                                      |
-| `Dispatcher` missing on the .NET Framework build             | Reference `WindowsBase` under the `.NETFramework` condition.                            |
+| Pitfall                                                     | Correct approach                                                                       |
+|-------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| Starting a new thread or `Task.Run` for Revit work          | Route everything through `RevitDispatcherThread.Instance` via the executor.            |
+| Returning the dispatcher operation without unwrapping       | Await the inner task (`operation.Task.Unwrap()`) so continuations complete.            |
+| A Revit-touching `[Before]`/`[After]` hook with no executor | Add `[HookExecutor<RevitThreadExecutor>]`; hooks do not inherit the assembly executor. |
+| Injecting without a matching eject                          | Open in the session-setup hook, release in the matching session-cleanup hook.          |
+| Making the thread host or limiter public                    | Keep them `file sealed`; expose only the executor.                                     |
+| `Dispatcher` missing on the .NET Framework build            | Reference `WindowsBase` under the `.NETFramework` condition.                           |
