@@ -32,5 +32,5 @@ It adds only the Revit execution model on top of TUnit; assertions, attributes, 
 
 ## Build and verify
 
-* Compile: `dotnet build -c Release.RNN` (`RNN` selects the Revit year).
-* Test: `dotnet test -c Release.RNN`; a matching licensed Revit install must be present.
+* Build: `dotnet build -c Release.R##`, where the `R##` suffix is the Revit year (`R27` targets Revit 2027).
+* Test: `dotnet test -c Release.RNN`; required a matching licensed Revit installation.
