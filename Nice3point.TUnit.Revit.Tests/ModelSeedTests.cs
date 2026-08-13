@@ -6,9 +6,9 @@ namespace Nice3point.TUnit.Revit.Tests;
 public sealed class ModelSeedTests : RevitApiTest
 {
     private Document _document = null!;
-    private IList<Level> _levels = null!;
     private IList<Wall> _exteriorWalls = null!;
     private IList<Grid> _grids = null!;
+    private IList<Level> _levels = null!;
 
     [Before(Test)]
     [HookExecutor<RevitThreadExecutor>]
@@ -23,7 +23,7 @@ public sealed class ModelSeedTests : RevitApiTest
         [
             Level.Create(_document, 0),
             Level.Create(_document, 3),
-            Level.Create(_document, 6),
+            Level.Create(_document, 6)
         ];
 
         _exteriorWalls =
@@ -31,14 +31,14 @@ public sealed class ModelSeedTests : RevitApiTest
             Wall.Create(_document, Line.CreateBound(new XYZ(0, 0, 0), new XYZ(10, 0, 0)), _levels[0].Id, false),
             Wall.Create(_document, Line.CreateBound(new XYZ(10, 0, 0), new XYZ(10, 6, 0)), _levels[0].Id, false),
             Wall.Create(_document, Line.CreateBound(new XYZ(10, 6, 0), new XYZ(0, 6, 0)), _levels[0].Id, false),
-            Wall.Create(_document, Line.CreateBound(new XYZ(0, 6, 0), new XYZ(0, 0, 0)), _levels[0].Id, false),
+            Wall.Create(_document, Line.CreateBound(new XYZ(0, 6, 0), new XYZ(0, 0, 0)), _levels[0].Id, false)
         ];
 
         _grids =
         [
             Grid.Create(_document, Line.CreateBound(new XYZ(0, -1, 0), new XYZ(0, 7, 0))),
             Grid.Create(_document, Line.CreateBound(new XYZ(5, -1, 0), new XYZ(5, 7, 0))),
-            Grid.Create(_document, Line.CreateBound(new XYZ(10, -1, 0), new XYZ(10, 7, 0))),
+            Grid.Create(_document, Line.CreateBound(new XYZ(10, -1, 0), new XYZ(10, 7, 0)))
         ];
 
         _levels[0].Name = "Ground Floor";

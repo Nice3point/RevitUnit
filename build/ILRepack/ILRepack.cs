@@ -9,8 +9,8 @@ namespace Build.ILRepack;
 
 public sealed class ILRepack(IDotNet dotNet, ICommand command)
 {
-    private readonly Folder _temporaryFolder = Folder.CreateTemporaryFolder();
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
+    private readonly Folder _temporaryFolder = Folder.CreateTemporaryFolder();
 
     public async Task<CommandResult> Repack(IlRepackOptions options, CancellationToken cancellationToken = default)
     {

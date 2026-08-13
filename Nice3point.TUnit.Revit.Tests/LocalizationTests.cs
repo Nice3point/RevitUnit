@@ -144,7 +144,10 @@ public sealed class GlobalLocalizationSkipConfiguration : RevitApiTest
         var currentLanguage = Application.Language.ToString();
         foreach (var language in Languages)
         {
-            if (!context.Metadata.TestName.Contains(language, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!context.Metadata.TestName.Contains(language, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
 
             if (!currentLanguage.Equals(language, StringComparison.OrdinalIgnoreCase))
             {

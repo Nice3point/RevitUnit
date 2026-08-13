@@ -1,5 +1,4 @@
-﻿using Nice3point.Revit.Injector;
-using Nice3point.TUnit.Revit.Executors;
+﻿using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests.Abstractions;
@@ -24,8 +23,11 @@ public abstract class RevitSampleTest : RevitApiTest
     public void CloseDocument()
     {
         Document?.Close(false);
-        if (_isolatedSamplePath is null) return;
-        
+        if (_isolatedSamplePath is null)
+        {
+            return;
+        }
+
         File.SetAttributes(_isolatedSamplePath, FileAttributes.Normal);
         File.Delete(_isolatedSamplePath);
     }

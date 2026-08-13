@@ -14,11 +14,20 @@ public static class IlRepackExtensions
         ModularPipelinesContextRegistry.RegisterContext(collection => collection.RegisterIlRepackContext());
     }
 
-    private static IServiceCollection RegisterIlRepackContext(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.TryAddScoped<ILRepack>();
-        return services;
+        private IServiceCollection RegisterIlRepackContext()
+        {
+            services.TryAddScoped<ILRepack>();
+            return services;
+        }
     }
 
-    public static ILRepack IlRepack(this IPipelineContext context) => context.Services.Get<ILRepack>();
+    extension(IPipelineContext context)
+    {
+        public ILRepack IlRepack()
+        {
+            return context.Services.Get<ILRepack>();
+        }
+    }
 }
