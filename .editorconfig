@@ -1815,5 +1815,5 @@ tab_width = 4
 [*Tests.cs]
 resharper_inconsistent_naming_highlighting = none
 
-[Nice3point.TUnit.Revit/**.cs]
+[source/Nice3point.TUnit.Revit/**.cs]
 resharper_lambda_expression_can_be_made_static_highlighting = warning
