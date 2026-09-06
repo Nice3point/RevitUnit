@@ -38,6 +38,6 @@
     <BuildType Solution="Release.R26|*" Project="Release"/>
     <BuildType Solution="Release.R27|*" Project="Release"/>
   </Project>
-  <Project Path="Nice3point.TUnit.Revit.Tests/Nice3point.TUnit.Revit.Tests.csproj"/>
-  <Project Path="Nice3point.TUnit.Revit/Nice3point.TUnit.Revit.csproj"/>
+  <Project Path="tests/Nice3point.TUnit.Revit.Tests/Nice3point.TUnit.Revit.Tests.csproj"/>
+  <Project Path="source/Nice3point.TUnit.Revit/Nice3point.TUnit.Revit.csproj"/>
 </Solution>

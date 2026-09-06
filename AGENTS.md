@@ -25,8 +25,8 @@ It adds only the Revit execution model on top of TUnit; assertions, attributes, 
 
 ## Repository map
 
-* `Nice3point.TUnit.Revit/` — the core testing framework, packed as a Nuget package. It exposes a `RevitApiTest` for users.
-* `Nice3point.TUnit.Revit.Tests/` — the test project that tests the framework.
+* `source/Nice3point.TUnit.Revit/` — the core testing framework, packed as a Nuget package. It exposes a `RevitApiTest` for users.
+* `tests/Nice3point.TUnit.Revit.Tests/` — the test project that tests the framework.
 * `build/` — the ModularPipelines build.
 * Root — `Directory.Build.props`, `Directory.Packages.props`, `global.json`, `README.md`, `CHANGELOG.md`, CI workflows.
 
