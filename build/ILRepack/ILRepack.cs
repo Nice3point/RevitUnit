@@ -1,4 +1,4 @@
-﻿using Build.ILRepack.Options;
+using Build.ILRepack.Options;
 using ModularPipelines.Context;
 using ModularPipelines.DotNet.Options;
 using ModularPipelines.DotNet.Services;

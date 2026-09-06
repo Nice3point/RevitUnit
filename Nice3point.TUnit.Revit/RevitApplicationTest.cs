@@ -1,4 +1,4 @@
-﻿using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.ApplicationServices;
 using Nice3point.Revit.Injector;
 
 namespace Nice3point.TUnit.Revit;

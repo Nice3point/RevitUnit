@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
     <picture>
         <source media="(prefers-color-scheme: dark)" width="610" srcset="https://github.com/user-attachments/assets/e539b207-f469-46ed-8543-5839146761ec">
         <img alt="RevitUnit" width="610" src="https://github.com/user-attachments/assets/297430e2-7f9c-498a-8ae5-dfd48caae621">

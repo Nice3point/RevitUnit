@@ -1,4 +1,4 @@
-﻿using System.Windows.Threading;
+using System.Windows.Threading;
 using TUnit.Core.Interfaces;
 
 namespace Nice3point.TUnit.Revit.Executors;

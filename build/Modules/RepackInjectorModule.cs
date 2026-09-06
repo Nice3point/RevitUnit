@@ -1,4 +1,4 @@
-﻿using Build.ILRepack;
+using Build.ILRepack;
 using Build.ILRepack.Options;
 using ModularPipelines.Attributes;
 using ModularPipelines.Context;

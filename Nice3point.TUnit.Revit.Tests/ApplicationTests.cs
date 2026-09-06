@@ -1,4 +1,4 @@
-﻿namespace Nice3point.TUnit.Revit.Tests;
+namespace Nice3point.TUnit.Revit.Tests;
 
 public sealed class ApplicationTests : RevitApiTest
 {

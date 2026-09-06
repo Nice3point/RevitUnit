@@ -1,4 +1,4 @@
-﻿using Nice3point.Revit.Injector;
+using Nice3point.Revit.Injector;
 using Nice3point.TUnit.Revit.Executors;
 using TUnit.Core.Executors;
 

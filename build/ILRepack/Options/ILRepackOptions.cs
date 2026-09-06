@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using ModularPipelines.Attributes;
 using ModularPipelines.Options;
 
