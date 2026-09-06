@@ -30,7 +30,7 @@
 
     <!-- Core dependencies -->
     <ItemGroup>
-        <PackageVersion Include="PolyHook2.NET" Version="1.1.3"/>
+        <PackageVersion Include="PolyHook2.NET" Version="1.1.9"/>
 
         <!-- Build automation -->
         <PackageVersion Include="Sourcy.DotNet" Version="1.1.1"/>
