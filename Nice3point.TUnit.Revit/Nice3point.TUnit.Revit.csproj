@@ -12,7 +12,7 @@
         <PackageId>Nice3point.TUnit.Revit</PackageId>
         <Authors>Nice3point</Authors>
         <Description>.NET testing framework for Revit</Description>
-        <PackageTags>autodesk;revit;unit;tests</PackageTags>
+        <PackageTags>autodesk;revit;api;tests;tunit</PackageTags>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/Nice3point/RevitUnit</RepositoryUrl>
         <PackageProjectUrl>https://github.com/Nice3point/RevitUnit</PackageProjectUrl>
