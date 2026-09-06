@@ -5,25 +5,25 @@ namespace Nice3point.TUnit.Revit.Tests;
 public sealed class TestContextTests : RevitApiTest
 {
     [Test]
-    public async Task TestContext_Current_ShouldNotBeNull_InRevitThreadExecutor()
+    public async Task Current_RevitThreadExecutor_ReturnsRunningTestContext()
     {
         // Arrange & Act
         var context = TestContext.Current;
 
         // Assert
         await Assert.That(context).IsNotNull();
-        await Assert.That(context.Metadata.TestName).IsEqualTo(nameof(TestContext_Current_ShouldNotBeNull_InRevitThreadExecutor));
+        await Assert.That(context.Metadata.TestName).IsEqualTo(nameof(Current_RevitThreadExecutor_ReturnsRunningTestContext));
     }
 
     [Test]
     [TestExecutor<DedicatedThreadExecutor>]
-    public async Task TestContext_Current_ShouldNotBeNull_InDedicatedThreadExecutor()
+    public async Task Current_DedicatedThreadExecutor_ReturnsRunningTestContext()
     {
         // Arrange & Act
         var context = TestContext.Current;
 
         // Assert
         await Assert.That(context).IsNotNull();
-        await Assert.That(context.Metadata.TestName).IsEqualTo(nameof(TestContext_Current_ShouldNotBeNull_InDedicatedThreadExecutor));
+        await Assert.That(context.Metadata.TestName).IsEqualTo(nameof(Current_DedicatedThreadExecutor_ReturnsRunningTestContext));
     }
 }
