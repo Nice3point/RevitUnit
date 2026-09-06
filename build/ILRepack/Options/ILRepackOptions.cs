@@ -5,7 +5,6 @@ using ModularPipelines.Options;
 namespace Build.ILRepack.Options;
 
 [PublicAPI]
-[Serializable]
 public sealed record IlRepackOptions : CommandLineToolOptions
 {
     [CliFlag("/help")] public bool? Help { get; init; }
