@@ -83,6 +83,14 @@ Settings > Build, Execution, Deployment > Unit Testing > Testing Platform.
 
 ![](https://github.com/user-attachments/assets/d64c58f6-9223-4bdb-a513-c663daf4e0c1)
 
+### Visual Studio
+
+Enable **Tools > Manage Preview Features > Use testing platform server mode**; without it Test Explorer does not list the tests.
+
+Test Explorer keeps the test host process alive between runs and starts a new test session for each run. Revit is loaded into that process
+once, by the first run, and released when the host exits, so the first run pays the Revit start-up cost and later runs in the same host reuse
+the loaded application.
+
 ## Application testing
 
 Test Revit application-level functionality using the `Application` property exposed by `RevitApiTest`:

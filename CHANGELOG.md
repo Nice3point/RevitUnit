@@ -1,3 +1,13 @@
+# Unreleased
+
+- The Revit connection now lives as long as the test host process instead of one test session.
+  Hosts that run several sessions in one process, such as Visual Studio Test Explorer in testing platform server mode, failed every run after the first with
+  `BeforeTestSession hook failed: Attempted to write protected memory.`, because Revit's core cannot be loaded into a process twice.
+  `RevitSessionSetup` injects once per process; the new `RevitApplicationLifetime` releases the connection when the test application finishes and is registered through the package's `build` props, so consuming projects need no change.
+  `RevitApiTest.RevitSessionCleanup` no longer runs as a hook and is obsolete.
+- Revit tests run one at a time again. TUnit's `TestExecutorAttribute` does not forward `ITestRegisteredEventReceiver` to the executor it creates, so the limit `RevitThreadExecutor` declares was never applied.
+  `RevitApplicationTest` now carries `[ParallelLimiter<RevitCountParallelLimit>]`, inherited by every Revit test; `RevitCountParallelLimit` is public.
+
 # 2027.0.1
 
 - Updated TUnit to 1.44

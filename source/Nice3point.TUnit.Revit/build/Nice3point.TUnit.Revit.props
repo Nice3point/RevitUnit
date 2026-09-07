@@ -1,0 +1,14 @@
+<Project>
+
+    <!--
+        Releases the Revit connection when the test application finishes. Microsoft.Testing.Platform
+        compiles a call to the named type into the generated entry point of the consuming test project.
+    -->
+    <ItemGroup>
+        <TestingPlatformBuilderHook Include="Nice3point.TUnit.Revit.RevitApplicationLifetime">
+            <DisplayName>Revit application lifetime</DisplayName>
+            <TypeFullName>Nice3point.TUnit.Revit.RevitTestingPlatformBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+
+</Project>

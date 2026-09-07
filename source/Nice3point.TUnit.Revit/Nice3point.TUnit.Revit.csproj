@@ -35,6 +35,7 @@
         <None Include="..\..\.nuget\PackageIcon.png" PackagePath="images\" Pack="true" Visible="false"/>
         <None Include="..\..\LICENSE.md" PackagePath="" Pack="true" Visible="false"/>
         <None Include="..\..\README.md" PackagePath="" Pack="true" Visible="false"/>
+        <None Include="build\Nice3point.TUnit.Revit.props" PackagePath="build\" Pack="true"/>
     </ItemGroup>
 
     <ItemGroup>
