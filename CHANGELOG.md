@@ -28,13 +28,17 @@ public sealed class SelectionTests : RevitApiUiTest
 }
 ```
 
-- Revit starts with its user interface on the first UI test a run executes and closes when the run finishes.
-- UI tests run one at a time, in parallel with `RevitApiTest` tests.
+UI tests use the `RevitAPIUI` types, add the `Nice3point.Revit.Api.RevitAPIUI` package reference.
 
 ## Enhancements
 
 - `RevitApiTest` applies `RevitThreadExecutor` to every test and hook of the class.
-  A test or a hook no longer declares `[TestExecutor<RevitThreadExecutor>]` or `[HookExecutor<RevitThreadExecutor>]`.
+  The executor attributes are redundant now; remove `[TestExecutor<RevitThreadExecutor>]` and `[HookExecutor<RevitThreadExecutor>]` from test classes, methods, and hooks, and the assembly-level declaration, usually in `TestsConfiguration.cs`:
+
+  ```csharp
+  // Remove
+  [assembly: TestExecutor<RevitThreadExecutor>]
+  ```
 
 # 2027.0.2
 
