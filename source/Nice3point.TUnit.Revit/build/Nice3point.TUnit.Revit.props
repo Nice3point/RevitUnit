@@ -1,0 +1,11 @@
+﻿<Project>
+
+    <!-- An extension point of Microsoft.Testing.Platform. Registers the RevitConnectionLifetime. -->
+    <ItemGroup>
+        <TestingPlatformBuilderHook Include="Nice3point.TUnit.Revit">
+            <DisplayName>Nice3point.TUnit.Revit</DisplayName>
+            <TypeFullName>Nice3point.TUnit.Revit.TestingPlatformBuilderHook</TypeFullName>
+        </TestingPlatformBuilderHook>
+    </ItemGroup>
+
+</Project>

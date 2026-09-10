@@ -5,32 +5,25 @@ namespace Nice3point.TUnit.Revit;
 
 /// <summary>
 ///     Represents a test class for executing tests within the Revit environment.
-///     This class provides dependency resolution, setup and cleanup methods for initializing and terminating
-///     the connection to the Revit API before and after the test session.
+///     This class provides dependency resolution and the setup that establishes the connection to the Revit API before the test session.
 /// </summary>
+/// <remarks>
+///     <see cref="RevitConnectionLifetime"/> closes the connection when the test application finishes.
+/// </remarks>
 public abstract class RevitApiTest : RevitApplicationTest
 {
     /// <summary>
     ///     Sets up the Revit session by initializing the connection to the Revit API.
-    ///     This method is executed before the test session begins, ensuring that the
-    ///     necessary prerequisites for the tests interacting with the Revit environment are satisfied.
+    ///     This method is executed before the test session begins, ensuring that the necessary prerequisites for the tests interacting with the Revit environment are satisfied.
     /// </summary>
+    /// <remarks>
+    ///     The first test a session executes triggers the hook.
+    ///     Test discovery executes no test and does not start Revit.
+    /// </remarks>
     [Before(TestSession)]
     [HookExecutor<RevitThreadExecutor>]
     public static void RevitSessionSetup()
     {
         InitializeRevitConnection();
-    }
-
-    /// <summary>
-    ///     Cleans up the Revit session by terminating the connection to the Revit API.
-    ///     This method is executed after the test session concludes, ensuring that
-    ///     resources and connections related to the Revit environment are properly released.
-    /// </summary>
-    [After(TestSession)]
-    [HookExecutor<RevitThreadExecutor>]
-    public static void RevitSessionCleanup()
-    {
-        TerminateRevitConnection();
     }
 }

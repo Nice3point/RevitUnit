@@ -27,4 +27,7 @@
         <ProjectReference Include="..\..\source\Nice3point.TUnit.Revit\Nice3point.TUnit.Revit.csproj"/>
     </ItemGroup>
 
+    <!-- A project reference carries no build assets. Imports what a package consumer receives. -->
+    <Import Project="..\..\source\Nice3point.TUnit.Revit\build\Nice3point.TUnit.Revit.props"/>
+
 </Project>
