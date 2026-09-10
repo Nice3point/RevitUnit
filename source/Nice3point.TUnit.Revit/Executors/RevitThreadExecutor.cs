@@ -19,6 +19,8 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
     /// <summary>
     ///     Applies the Revit parallel limiter so registered tests never run concurrently.
     /// </summary>
+    /// <param name="context">The registration context of the test the executor runs.</param>
+    /// <returns>A completed task.</returns>
     public ValueTask OnTestRegistered(TestRegisteredContext context)
     {
         context.SetParallelLimiter(RevitCountParallelLimit.Default);
@@ -33,11 +35,24 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
         ArgumentNullException.ThrowIfNull(action);
         return RevitDispatcherThread.Instance.InvokeAsync(action);
     }
+
+    /// <summary>
+    ///     Runs <paramref name="action"/> on the Revit thread outside of a test and a hook.
+    /// </summary>
+    /// <param name="action">The action to run on the Revit thread.</param>
+    /// <returns>A task that completes once the action and its continuations finish.</returns>
+    internal static ValueTask InvokeAsync(Func<ValueTask> action)
+    {
+        return RevitDispatcherThread.Instance.InvokeAsync(action);
+    }
 }
 
 /// <summary>
 ///     Restricts Revit API tests to a single concurrent execution.
 /// </summary>
+/// <remarks>
+///     TUnit keys a limit by its type. Every Revit test of a run shares this one.
+/// </remarks>
 file sealed class RevitCountParallelLimit : IParallelLimit
 {
     /// <summary>

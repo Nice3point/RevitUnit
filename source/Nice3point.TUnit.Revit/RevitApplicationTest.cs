@@ -7,8 +7,13 @@ namespace Nice3point.TUnit.Revit;
 ///     Represents an abstract base class for tests that require interaction with the Revit application environment.
 ///     Provides methods to initialize and terminate the connection to the Revit application.
 /// </summary>
+/// <remarks>
+///     One connection serves the whole test host process.
+///     Revit activates once per process, and a host such as Visual Studio Test Explorer runs a test session per run inside one process.
+/// </remarks>
 public abstract class RevitApplicationTest
 {
+    private static readonly Lock ConnectionLock = new();
     private static Injector? _injector;
 
     /// <summary>
@@ -17,20 +22,69 @@ public abstract class RevitApplicationTest
     protected static Application Application { get; private set; } = null!;
 
     /// <summary>
+    ///     Gets a value indicating whether the process holds an open connection to the Revit application.
+    /// </summary>
+    internal static bool IsConnected
+    {
+        get
+        {
+            lock (ConnectionLock)
+            {
+                return _injector is not null;
+            }
+        }
+    }
+
+    /// <summary>
     ///     Initializes the connection to the Revit application.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The process terminated its connection earlier.</exception>
+    /// <remarks>
+    ///     The first call of the process opens the connection, and every later call keeps the open one.
+    /// </remarks>
     protected static void InitializeRevitConnection()
     {
-        _injector = new Injector();
-        Application = _injector.InjectApplication();
+        lock (ConnectionLock)
+        {
+            if (_injector is not null)
+            {
+                return;
+            }
+
+            var injector = new Injector();
+            Application = injector.InjectApplication();
+            _injector = injector;
+        }
     }
 
     /// <summary>
     ///     Terminates the connection to the Revit application.
     ///     Frees associated resources and properly closes the interaction with the Revit environment.
     /// </summary>
+    /// <remarks>
+    ///     A call without an open connection has no effect.
+    ///     The connection cannot be reopened in the same process.
+    /// </remarks>
     protected static void TerminateRevitConnection()
     {
-        _injector?.EjectApplication();
+        lock (ConnectionLock)
+        {
+            if (_injector is null)
+            {
+                return;
+            }
+
+            _injector.EjectApplication();
+            _injector = null;
+            Application = null!;
+        }
+    }
+
+    /// <summary>
+    ///     Terminates the connection from outside the test hierarchy.
+    /// </summary>
+    internal static void ReleaseConnection()
+    {
+        TerminateRevitConnection();
     }
 }

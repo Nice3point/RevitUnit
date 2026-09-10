@@ -35,6 +35,10 @@
         <None Include="..\..\.nuget\PackageIcon.png" PackagePath="images\" Pack="true" Visible="false"/>
         <None Include="..\..\LICENSE.md" PackagePath="" Pack="true" Visible="false"/>
         <None Include="..\..\README.md" PackagePath="" Pack="true" Visible="false"/>
+
+        <!-- Build assets of the package. build reaches a direct reference, buildTransitive a transitive one. -->
+        <None Include="build\Nice3point.TUnit.Revit.props" PackagePath="build\" Pack="true"/>
+        <None Include="build\Nice3point.TUnit.Revit.props" PackagePath="buildTransitive\" Pack="true"/>
     </ItemGroup>
 
     <ItemGroup>
