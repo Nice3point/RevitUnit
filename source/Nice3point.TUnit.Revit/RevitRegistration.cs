@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using Microsoft.Testing.Platform.Builder;
-using Microsoft.Testing.Platform.Extensions.TestHost;
 
 namespace Nice3point.TUnit.Revit;
 
@@ -21,7 +20,7 @@ public static class RevitRegistration
         /// </remarks>
         public void AddRevit()
         {
-            builder.TestHost.AddTestHostApplicationLifetime(_ => new RevitConnectionLifetime());
+            builder.TestHost.AddTestHostApplicationLifetime(static _ => new RevitConnectionLifetime());
         }
     }
 }

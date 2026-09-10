@@ -8,11 +8,9 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </summary>
 /// <remarks>
 ///     Revit requires every API call to occur on the same thread that initialised it.
-///     All actions are queued to a process-wide STA thread driven by a WPF
-///     <see cref="Dispatcher" />: it pumps Win32 messages for COM marshaling and routes
-///     <c>await</c> continuations back to the same thread through
-///     <see cref="DispatcherSynchronizationContext" />. Concurrent execution is capped
-///     at one test at a time to keep exclusive access to the Revit thread.
+///     All actions are queued to a process-wide STA thread driven by a WPF <see cref="Dispatcher" />:
+///     it pumps Win32 messages for COM marshaling and routes <c>await</c> continuations back to the same thread through <see cref="DispatcherSynchronizationContext" />.
+///     Concurrent execution is capped at one test at a time to keep exclusive access to the Revit thread.
 /// </remarks>
 public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
 {
@@ -67,8 +65,7 @@ file sealed class RevitCountParallelLimit : IParallelLimit
 }
 
 /// <summary>
-///     Hosts the process-wide STA thread used for every Revit API call and dispatches
-///     asynchronous actions onto its WPF <see cref="Dispatcher" />.
+///     Hosts the process-wide STA thread used for every Revit API call and dispatches asynchronous actions onto its WPF <see cref="Dispatcher" />.
 /// </summary>
 file sealed class RevitDispatcherThread
 {
@@ -105,8 +102,7 @@ file sealed class RevitDispatcherThread
     public static RevitDispatcherThread Instance { get; } = new();
 
     /// <summary>
-    ///     Queues <paramref name="action" /> on the Revit thread and returns a task that
-    ///     completes once the action and all of its <c>await</c> continuations finish.
+    ///     Queues <paramref name="action" /> on the Revit thread and returns a task that completes once the action and all of its <c>await</c> continuations finish.
     /// </summary>
     public ValueTask InvokeAsync(Func<ValueTask> action)
     {

@@ -50,7 +50,7 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
             return;
         }
 
-        await RevitThreadExecutor.InvokeAsync(() =>
+        await RevitThreadExecutor.InvokeAsync(static () =>
         {
             RevitApplicationTest.TerminateRevitConnection();
             return default;
