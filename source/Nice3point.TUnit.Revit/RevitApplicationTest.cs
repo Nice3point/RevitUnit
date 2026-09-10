@@ -9,7 +9,7 @@ namespace Nice3point.TUnit.Revit;
 /// </summary>
 /// <remarks>
 ///     One connection serves the whole test host process.
-///     Revit activates once per process, and a host such as Visual Studio Test Explorer runs a test session per run inside one process.
+///     Revit activates once per process, and an IDE that keeps a test host alive starts a test session per run in that process.
 /// </remarks>
 public abstract class RevitApplicationTest
 {

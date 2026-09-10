@@ -1,7 +1,7 @@
-# Unreleased
+# 2027.0.2
 
 - One Revit connection now serves the whole test host process.
-  A host that runs a test session per run inside one process, such as Visual Studio Test Explorer in testing platform server mode, failed every run after the first with `BeforeTestSession hook failed: Attempted to write protected memory.`
+  An IDE that keeps a test host alive starts a test session per run in that process, and every run after the first failed with `BeforeTestSession hook failed: Attempted to write protected memory.`
   The new `RevitConnectionLifetime` releases the connection when the test application finishes.
   The package registers it through its build props; a consuming project needs no change, and a project with its own entry point calls `AddRevit`.
 - Removed the `RevitApiTest.RevitSessionCleanup` hook, which released the connection after every session.
@@ -42,7 +42,7 @@ TUnit initializes Revit with the `English - United States` language. To override
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
-    
+
     [assembly: RevitLanguage("ENU")]
     ```
 
@@ -68,7 +68,7 @@ TUnit initializes Revit from `C:\Program Files\Autodesk\Revit {version}` install
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
-    
+
     [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
     ```
 

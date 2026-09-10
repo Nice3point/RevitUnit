@@ -7,7 +7,7 @@ It adds only the Revit execution model on top of TUnit; assertions, attributes, 
 ## Non-negotiables
 
 * One thread owns the Revit API. Every API call runs on the thread that initialized Revit; the executor marshals test bodies and hooks onto it and declares a cap of one Revit test at a time. Never touch a Revit type off that thread, and never start a second thread or `Task.Run` for Revit work.
-* Inject and eject in matched pairs, once per test host process. Revit activates once per process, and a host such as Visual Studio Test Explorer runs a test session per run inside one process. The first session that executes a test connects, and `RevitConnectionLifetime` releases when the test application finishes. A process that keeps Revit connected never terminates.
+* Inject and eject in matched pairs, once per test host process. Revit activates once per process, and an IDE that keeps a test host alive starts a test session per run in that process. The first session that executes a test connects, and `RevitConnectionLifetime` releases when the test application finishes. A process that keeps Revit connected never terminates.
 * Revit starts on the first test a session executes, never on discovery. Nothing that runs for a discovery request opens the connection. An IDE that lists the tests of an assembly does not start Revit.
 * The package adds the Revit execution model only. It exposes the base classes, the executor, and the injection lifecycle; assertions, attributes, and discovery come from TUnit. Never reimplement what TUnit provides.
 * Never break the public surface. Deprecate a renamed member with `[Obsolete]`, name the replacement, and keep the member functional.
