@@ -65,7 +65,7 @@ public abstract class RevitApplicationTest
     ///     A call without an open connection has no effect.
     ///     The connection cannot be reopened in the same process.
     /// </remarks>
-    protected static void TerminateRevitConnection()
+    protected internal static void TerminateRevitConnection()
     {
         lock (ConnectionLock)
         {
@@ -78,13 +78,5 @@ public abstract class RevitApplicationTest
             _injector = null;
             Application = null!;
         }
-    }
-
-    /// <summary>
-    ///     Terminates the connection from outside the test hierarchy.
-    /// </summary>
-    internal static void ReleaseConnection()
-    {
-        TerminateRevitConnection();
     }
 }
