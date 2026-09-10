@@ -16,8 +16,8 @@ public static class RevitRegistration
         ///     Adds the Revit connection lifetime to the specified <see cref="ITestApplicationBuilder"/>.
         /// </summary>
         /// <remarks>
-        ///     A test project receives this through the build props of the package.
-        ///     A project that writes its own entry point calls it there.
+        ///     The build props of the package add this extension to a test project.
+        ///     A project that defines its own entry point calls this method from that entry point.
         /// </remarks>
         public void AddRevit()
         {
@@ -27,7 +27,7 @@ public static class RevitRegistration
 }
 
 /// <summary>
-///     Adds the Revit execution model to the test application the test platform generates.
+///     Provides the hook Microsoft.Testing.Platform calls while it builds the test application.
 /// </summary>
 /// <remarks>
 ///     The <c>TestingPlatformBuilderHook</c> item of the package's build props names this type, and the build step of the test platform compiles a call to <see cref="AddExtensions"/> into the generated entry point.

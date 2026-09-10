@@ -19,7 +19,7 @@ public abstract class RevitApiTest : RevitApplicationTest
     /// </summary>
     /// <remarks>
     ///     The first test a session executes triggers the hook.
-    ///     Listing the tests of an assembly executes none, and leaves Revit unstarted.
+    ///     Test discovery executes no test and does not start Revit.
     /// </remarks>
     [Before(TestSession)]
     [HookExecutor<RevitThreadExecutor>]

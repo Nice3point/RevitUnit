@@ -10,7 +10,7 @@ namespace Nice3point.TUnit.Revit;
 /// <remarks>
 ///     The test platform runs this after the last test session of the process and before the runtime begins shutting down, in the console host of <c>dotnet run</c> and <c>dotnet test</c> as well as in the server host an IDE keeps alive between runs.
 ///     It is the last point at which the Revit thread still accepts work.
-///     A process that leaves Revit connected never terminates.
+///     A process that keeps Revit connected never terminates.
 /// </remarks>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
@@ -41,7 +41,7 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
 
     /// <inheritdoc />
     /// <remarks>
-    ///     A run that opened no connection, such as a discovery request, leaves the Revit thread untouched.
+    ///     When the process holds no connection, as after a discovery request, this method returns without dispatching to the Revit thread.
     /// </remarks>
     public async Task AfterRunAsync(int exitCode, CancellationToken cancellationToken)
     {
