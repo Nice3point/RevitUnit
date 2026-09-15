@@ -1,0 +1,58 @@
+namespace Nice3point.TUnit.Revit.Tests;
+
+public sealed class ParallelLimitTests : RevitApiTest
+{
+    private static int _concurrent;
+    private static int _peak;
+
+    [Test]
+    public async Task RevitTest_RunningOnTheRevitThread_CarriesALimitOfOne()
+    {
+        // Arrange & Act
+        var limiter = TestContext.Current!.Parallelism.Limiter;
+
+        // Assert
+        using (Assert.Multiple())
+        {
+            await Assert.That(limiter).IsNotNull();
+            await Assert.That(limiter!.Limit).IsEqualTo(1);
+        }
+    }
+
+    [Test]
+    [Repeat(4)]
+    public async Task RevitTests_ScheduledTogether_ObserveThemselvesAlone()
+    {
+        // Arrange
+        var observed = Interlocked.Increment(ref _concurrent);
+        RecordPeak(observed);
+
+        // Act
+        await Task.Delay(50);
+        Interlocked.Decrement(ref _concurrent);
+
+        // Assert
+        await Assert.That(observed).IsEqualTo(1);
+    }
+
+    [Test]
+    [DependsOn(nameof(RevitTests_ScheduledTogether_ObserveThemselvesAlone))]
+    public async Task RevitTests_ScheduledTogether_NeverOverlap()
+    {
+        // Arrange & Act & Assert
+        await Assert.That(_peak).IsEqualTo(1);
+    }
+
+    private static void RecordPeak(int observed)
+    {
+        int previous;
+        do
+        {
+            previous = _peak;
+            if (observed <= previous)
+            {
+                return;
+            }
+        } while (Interlocked.CompareExchange(ref _peak, observed, previous) != previous);
+    }
+}
