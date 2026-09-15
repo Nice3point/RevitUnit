@@ -1,14 +1,10 @@
 # 2027.0.2
 
-- One Revit connection now serves the whole test host process.
-  An IDE that keeps a test host alive starts a test session per run in that process, and every run after the first failed with `BeforeTestSession hook failed: Attempted to write protected memory.`
-  The new `RevitConnectionLifetime` releases the connection when the test application finishes.
-  The package registers it through its build props; a consuming project needs no change, and a project with its own entry point calls `AddRevit`.
-- Removed the `RevitApiTest.RevitSessionCleanup` hook, which released the connection after every session.
-- Revit tests still run without a parallel limit and interleave at every `await` on the shared thread.
-  The limit `RevitThreadExecutor` declares does not reach the scheduler: TUnit installs an executor without forwarding `ITestRegisteredEventReceiver` to it.
-  The fix belongs to TUnit and arrives with the version that carries it.
-  Until then, run the suite with `--maximum-parallel-tests 1`.
+- One Revit connection now serves the whole test host process https://github.com/Nice3point/RevitUnit/issues/108.
+  An IDE that keeps a test host alive starts a test session per run in that process.
+- Fixed the parallel limit of `RevitThreadExecutor` in [thomhurst/TUnit#6768](https://github.com/thomhurst/TUnit/pull/6768).
+  Revit tests now run one at a time as expected, without parallelization.
+- Updated TUnit to 1.67.0.
 
 # 2027.0.1
 
