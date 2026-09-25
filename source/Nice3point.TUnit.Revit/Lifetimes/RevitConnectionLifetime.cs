@@ -1,16 +1,16 @@
 using System.ComponentModel;
 using Microsoft.Testing.Platform.Extensions.TestHost;
-using Nice3point.TUnit.Revit.Executors;
+using Nice3point.TUnit.Revit.Sessions;
 
-namespace Nice3point.TUnit.Revit;
+namespace Nice3point.TUnit.Revit.Lifetimes;
 
 /// <summary>
-///     Releases the Revit connection when the test application finishes.
+///     Represents the lifetime that releases the Revit connections when the test application finishes.
 /// </summary>
 /// <remarks>
-///     The test platform runs this after the last test session of the process and before the runtime begins shutting down, in the console host of <c>dotnet run</c> and <c>dotnet test</c> as well as in the server host an IDE keeps alive between runs.
+///     The test platform runs the lifetime after the last test session of the process and before the runtime begins shutting down, in the console host of <c>dotnet run</c> and <c>dotnet test</c> as well as in the server host an IDE reuses across runs.
 ///     It is the last point at which the Revit thread still accepts work.
-///     A process that keeps Revit connected never terminates.
+///     A process with an open Revit connection never terminates.
 /// </remarks>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
@@ -25,7 +25,7 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
     public string DisplayName => "Revit connection lifetime";
 
     /// <inheritdoc />
-    public string Description => "Releases the Revit connection on the Revit thread when the test application finishes.";
+    public string Description => "Releases the Revit connections when the test application finishes.";
 
     /// <inheritdoc />
     public Task<bool> IsEnabledAsync()
@@ -41,19 +41,17 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
 
     /// <inheritdoc />
     /// <remarks>
-    ///     When the process holds no connection, as after a discovery request, this method returns without dispatching to the Revit thread.
+    ///     A connection that never opened, as after a discovery request, is skipped without dispatching to the Revit thread.
     /// </remarks>
     public async Task AfterRunAsync(int exitCode, CancellationToken cancellationToken)
     {
-        if (!RevitApplicationTest.IsConnected)
+        try
         {
-            return;
+            await RevitSession.Instance.StopAsync().ConfigureAwait(false);
         }
-
-        await RevitThreadExecutor.InvokeAsync(static () =>
+        finally
         {
-            RevitApplicationTest.TerminateRevitConnection();
-            return default;
-        }).ConfigureAwait(false);
+            await RevitUiSession.Instance.StopAsync().ConfigureAwait(false);
+        }
     }
 }

@@ -4,7 +4,7 @@ using Nice3point.TUnit.Revit.Tests.Attributes;
 namespace Nice3point.TUnit.Revit.Tests;
 
 /// <summary>
-///     Skips all tests in the class that don't match the current Revit localization.
+///     Represents tests that a test hook skips when the current Revit localization does not match.
 /// </summary>
 public sealed class LocalizationHookTests : RevitApiTest
 {
@@ -29,7 +29,7 @@ public sealed class LocalizationHookTests : RevitApiTest
 }
 
 /// <summary>
-///     Skips tests that don't match the current Revit localization using attributes.
+///     Represents tests that an attribute skips when the current Revit localization does not match.
 /// </summary>
 public sealed class LocalizationAttributeTests : RevitApiTest
 {
@@ -68,7 +68,7 @@ public sealed class LocalizationAttributeTests : RevitApiTest
 }
 
 /// <summary>
-///     Skips tests dynamically based on the current Revit localization.
+///     Represents tests that skip at run time when the current Revit localization does not match.
 /// </summary>
 public sealed class LocalizationDynamicSkipTests : RevitApiTest
 {
@@ -90,71 +90,6 @@ public sealed class LocalizationDynamicSkipTests : RevitApiTest
             case LanguageType.Chinese_Simplified:
                 await Assert.That(city.Name).IsEqualTo("K.I.索耶空军基地，密歇根");
                 break;
-        }
-    }
-}
-
-/// <summary>
-///     Skips tests whose method name contains a language identifier that doesn't match the current Revit localization.
-/// </summary>
-public sealed class LocalizationNameFilterTests : RevitApiTest
-{
-    [Test]
-    public async Task Cities_English_USA_ValidName()
-    {
-        // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
-
-        // Assert
-        await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
-    }
-
-    [Test]
-    public async Task Cities_Russian_ValidName()
-    {
-        // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
-
-        // Assert
-        await Assert.That(city.Name).IsEqualTo("Абердин, MD");
-    }
-
-    [Test]
-    public async Task Cities_Chinese_Simplified_ValidName()
-    {
-        // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
-
-        // Assert
-        await Assert.That(city.Name).IsEqualTo("K.I.索耶空军基地，密歇根");
-    }
-}
-
-/// <summary>
-///     Globally skips tests whose method name contains a language identifier that doesn't match the current Revit localization.
-/// </summary>
-/// <remarks>Applies to all tests in the project.</remarks>
-public sealed class GlobalLocalizationSkipConfiguration : RevitApiTest
-{
-    private static readonly string[] Languages = Enum.GetNames<LanguageType>();
-
-    [BeforeEvery(Test)]
-    public static void SkipUnmatchedLocalization(TestContext context)
-    {
-        var currentLanguage = Application.Language.ToString();
-        foreach (var language in Languages)
-        {
-            if (!context.Metadata.TestName.Contains(language, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!currentLanguage.Equals(language, StringComparison.OrdinalIgnoreCase))
-            {
-                Skip.Test($"This test is only supported on {language} localization");
-            }
-
-            return;
         }
     }
 }

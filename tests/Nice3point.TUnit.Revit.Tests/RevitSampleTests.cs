@@ -2,7 +2,6 @@ using Nice3point.TUnit.Revit.Tests.Abstractions;
 
 namespace Nice3point.TUnit.Revit.Tests;
 
-//Shared tests for FamilySampleTests and ModelSampleTests
 public abstract class RevitSampleTests(string extension, string? samplesDirectory = null) : RevitSampleTest(extension, samplesDirectory)
 {
     [Test]

@@ -1,17 +1,28 @@
+using Autodesk.Revit.ApplicationServices;
+
 namespace Nice3point.TUnit.Revit.Tests;
 
 public sealed class ConnectionLifetimeTests : RevitApiTest
 {
-    [Test]
-    public async Task RevitSessionSetup_SecondCallInProcess_KeepsTheOpenConnection()
+    private Application? _hookApplication;
+
+    [Before(Test)]
+    public void CaptureApplication()
     {
-        // Arrange
-        var application = Application;
+        _hookApplication = Application;
+    }
 
-        // Act
-        RevitSessionSetup();
-
+    [Test]
+    public async Task Application_InsideTestBody_IsOpenedBySessionSetup()
+    {
         // Assert
-        await Assert.That(Application).IsSameReferenceAs(application);
+        await Assert.That(Application).IsNotNull();
+    }
+
+    [Test]
+    public async Task Application_InsideHookAndTestBody_ReturnsTheSameApplication()
+    {
+        // Assert
+        await Assert.That(Application).IsSameReferenceAs(_hookApplication);
     }
 }

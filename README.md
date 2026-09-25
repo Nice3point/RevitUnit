@@ -35,21 +35,20 @@ public class MyTestClass : RevitApiTest
 }
 ```
 
-Add a method with `[Test]` and `[TestExecutor<RevitThreadExecutor>]` attributes:
+Add a method with the `[Test]` attribute:
 
 ```csharp
 public class MyTestClass : RevitApiTest
 {
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task MyTest()
     {
-        
+
     }
 }
 ```
 
-This is your runnable test. The `[TestExecutor<RevitThreadExecutor>]` attribute ensures the test executes within Revit's single-threaded API context.
+This is your runnable test. `RevitApiTest` runs every test and hook of the class within Revit's single-threaded API context.
 
 ## Running your tests
 
@@ -91,7 +90,6 @@ Test Revit application-level functionality using the `Application` property expo
 public sealed class ApplicationTests : RevitApiTest
 {
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task Cities_BuiltinSet_IsNotEmpty()
     {
         var cities = Application.Cities.Cast<City>();
@@ -100,7 +98,6 @@ public sealed class ApplicationTests : RevitApiTest
     }
 
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task Create_XYZ_ValidDistance()
     {
         var point = Application.Create.NewXYZ(3, 4, 5);
@@ -115,8 +112,6 @@ public sealed class ApplicationTests : RevitApiTest
 Tests that pass alone but fail together are a classic sign of shared state. Give each test its own document — created in `[Before(Test)]`, closed in `[After(Test)]` — and that problem disappears entirely.
 Use the setup hook to seed the document with exactly the state each test needs. Feel free to use `[Before(Class)]` hook for read-only tests.
 
-The `[HookExecutor<RevitThreadExecutor>]` attribute ensures hooks also run on Revit's thread:
-
 ```csharp
 public sealed class ModelSeedTests : RevitApiTest
 {
@@ -124,7 +119,6 @@ public sealed class ModelSeedTests : RevitApiTest
     private IList<Wall> _exteriorWalls = null!;
 
     [Before(Test)]
-    [HookExecutor<RevitThreadExecutor>]
     public void SeedModel()
     {
         _document = Application.NewProjectDocument(UnitSystem.Metric);
@@ -144,14 +138,12 @@ public sealed class ModelSeedTests : RevitApiTest
     }
 
     [After(Test)]
-    [HookExecutor<RevitThreadExecutor>]
     public void CloseModel()
     {
         _document.Close(false);
     }
 
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task FilteredElementCollector_ExteriorWalls_MatchSeededCount()
     {
         var walls = new FilteredElementCollector(_document)
@@ -163,7 +155,6 @@ public sealed class ModelSeedTests : RevitApiTest
     }
 
     [Test]
-    [TestExecutor<RevitThreadExecutor>]
     public async Task Transaction_DemolishWall_RemainingWallCountDecreases()
     {
         var targetId = _exteriorWalls[0].Id;
@@ -183,6 +174,54 @@ public sealed class ModelSeedTests : RevitApiTest
 }
 ```
 
+## User interface testing
+
+Test the functionality that needs the Revit user interface by deriving from `RevitApiUiTest`.
+The class exposes `UiApplication`, and runs every test body and hook on the Revit thread inside a Revit API context:
+
+```csharp
+public sealed class UiDocumentTests : RevitApiUiTest
+{
+    private UIDocument _uiDocument = null!;
+
+    [Before(Test)]
+    public void OpenModel()
+    {
+        _uiDocument = UiApplication.OpenAndActivateDocument(modelPath);
+    }
+
+    [Test]
+    public async Task SetElementIds_ActiveDocument_SelectsTheLevels()
+    {
+        var levelIds = uiDocument.Document.CollectElements()
+            .OfClass<Level>()
+            .ToElementIds();
+
+        _uiDocument.Selection.SetElementIds(levelIds);
+
+        await Assert.That(_uiDocument.Selection.GetElementIds()).IsEquivalentTo(levelIds);
+    }
+
+    [Test]
+    public async Task GetOpenUIViews_ActiveDocument_ContainsTheActiveView()
+    {
+        var openViewIds = uiDocument.GetOpenUIViews()
+            .Select(uiView => uiView.ViewId)
+            .ToList();
+
+        await Assert.That(openViewIds).Contains(_uiDocument.ActiveView.Id);
+    }
+
+    [Test]
+    public async Task CanPostCommand_Default3DView_IsPostable()
+    {
+        var commandId = RevitCommandId.LookupPostableCommandId(PostableCommand.Default3DView);
+
+        await Assert.That(UiApplication.CanPostCommand(commandId)).IsTrue();
+    }
+}
+```
+
 > [!NOTE]
 > The examples demonstrate basic testing functionality. This library **only adds support for working within the Revit API context**. For comprehensive documentation on assertions, attributes, test configuration, and
 > advanced features, please refer to the official [TUnit documentation](https://thomhurst.github.io/TUnit/).
@@ -190,31 +229,6 @@ public sealed class ModelSeedTests : RevitApiTest
 More examples, including parametrized model and family tests, are available in the [test project](https://github.com/Nice3point/RevitUnit/tree/main/Nice3point.TUnit.Revit.Tests).
 
 ## Test configuration
-
-### Global executor
-
-To avoid repeating the `TestExecutor` attribute for every test, you can [register](https://tunit.dev/docs/advanced/extension-points/#registering-a-test-executor) the executor globally using one of the following methods:
-
-- Add the assembly-level attribute to any .cs file in your project (e.g., TestsConfiguration.cs):
-
-    ```csharp
-    using Nice3point.TUnit.Revit.Executors;
-    using TUnit.Core.Executors;
-    
-    [assembly: TestExecutor<RevitThreadExecutor>]
-    ```
-
-- Or add the attribute directly to your .csproj file:
-
-    ```xml
-    <!-- Global Test Executor Registration -->
-    <ItemGroup>
-        <AssemblyAttribute Include="TUnit.Core.Executors.TestExecutorAttribute">
-            <_Parameter1>typeof(Nice3point.TUnit.Revit.Executors.RevitThreadExecutor)</_Parameter1>
-            <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
-        </AssemblyAttribute>
-    </ItemGroup>
-    ```
 
 ### Revit Environment
 
@@ -224,7 +238,7 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
-    
+
     [assembly: RevitLanguage("ENU")]
     [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
     ```
@@ -234,15 +248,15 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     ```xml
     <!-- Revit Environment Configuration -->
     <ItemGroup>
-  
+
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitLanguageAttribute">
             <_Parameter1>ENU</_Parameter1>
         </AssemblyAttribute>
-  
+
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitInstallationPathAttribute">
             <_Parameter1>D:\Autodesk\Revit $(RevitVersion)</_Parameter1>
         </AssemblyAttribute>
-  
+
     </ItemGroup>
     ```
 

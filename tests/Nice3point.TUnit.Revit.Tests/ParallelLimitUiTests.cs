@@ -1,12 +1,12 @@
 namespace Nice3point.TUnit.Revit.Tests;
 
-public sealed class ParallelLimitTests : RevitApiTest
+public sealed class ParallelLimitUiTests : RevitApiUiTest
 {
     private static int _concurrent;
     private static int _peak;
 
     [Test]
-    public async Task RevitTest_RunningOnTheRevitThread_HasALimitOfOne()
+    public async Task RevitUiTest_RunningInsideRevit_HasALimitOfOne()
     {
         // Arrange & Act
         var limiter = TestContext.Current!.Parallelism.Limiter;
@@ -21,7 +21,7 @@ public sealed class ParallelLimitTests : RevitApiTest
 
     [Test]
     [Repeat(4)]
-    public async Task RevitTests_ScheduledTogether_ObserveThemselvesAlone()
+    public async Task RevitUiTests_ScheduledTogether_ObserveThemselvesAlone()
     {
         // Arrange
         var observed = Interlocked.Increment(ref _concurrent);
@@ -36,8 +36,8 @@ public sealed class ParallelLimitTests : RevitApiTest
     }
 
     [Test]
-    [DependsOn(nameof(RevitTests_ScheduledTogether_ObserveThemselvesAlone))]
-    public async Task RevitTests_ScheduledTogether_NeverOverlap()
+    [DependsOn(nameof(RevitUiTests_ScheduledTogether_ObserveThemselvesAlone))]
+    public async Task RevitUiTests_ScheduledTogether_NeverOverlap()
     {
         // Arrange & Act & Assert
         await Assert.That(_peak).IsEqualTo(1);

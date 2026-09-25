@@ -1,33 +1,30 @@
 using System.Windows.Threading;
+using Nice3point.TUnit.Revit.Limiters;
 using TUnit.Core.Interfaces;
 
 namespace Nice3point.TUnit.Revit.Executors;
 
 /// <summary>
-///     Marshals test code onto a single dedicated STA thread that owns the Revit API.
+///     Represents the executor that runs tests and hooks on the thread that owns the Revit API.
 /// </summary>
 /// <remarks>
-///     Revit requires every API call to occur on the same thread that initialised it.
-///     All actions are queued to a process-wide STA thread driven by a WPF <see cref="Dispatcher" />:
-///     it pumps Win32 messages for COM marshaling and routes <c>await</c> continuations back to the same thread through <see cref="DispatcherSynchronizationContext" />.
-///     Concurrent execution is capped at one test at a time to keep exclusive access to the Revit thread.
+///     Revit requires every API call to occur on the thread that initialized it.
+///     The executor queues every action onto one process-wide STA thread, and <c>await</c> continuations return to the same thread.
+///     The executor runs one Revit test at a time.
 /// </remarks>
 public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
 {
-    /// <summary>
-    ///     Applies the Revit parallel limiter so registered tests never run concurrently.
-    /// </summary>
-    /// <param name="context">The registration context of the test the executor runs.</param>
-    /// <returns>A completed task.</returns>
+    /// <inheritdoc />
+    /// <remarks>
+    ///     The executor applies the Revit parallel limit to the registered test.
+    /// </remarks>
     public ValueTask OnTestRegistered(TestRegisteredContext context)
     {
-        context.SetParallelLimiter(RevitCountParallelLimit.Default);
+        context.SetParallelLimiter(RevitParallelLimit.Default);
         return default;
     }
 
-    /// <summary>
-    ///     Runs <paramref name="action" /> on the Revit thread and yields its completion as a task.
-    /// </summary>
+    /// <inheritdoc />
     protected override ValueTask ExecuteAsync(Func<ValueTask> action)
     {
         ArgumentNullException.ThrowIfNull(action);
@@ -35,10 +32,10 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
     }
 
     /// <summary>
-    ///     Runs <paramref name="action"/> on the Revit thread outside of a test and a hook.
+    ///     Runs the specified action on the Revit thread outside a test and a hook.
     /// </summary>
     /// <param name="action">The action to run on the Revit thread.</param>
-    /// <returns>A task that completes once the action and its continuations finish.</returns>
+    /// <returns>A task that completes once the action and its <c>await</c> continuations finish.</returns>
     internal static ValueTask InvokeAsync(Func<ValueTask> action)
     {
         return RevitDispatcherThread.Instance.InvokeAsync(action);
@@ -46,27 +43,12 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
 }
 
 /// <summary>
-///     Restricts Revit API tests to a single concurrent execution.
+///     Represents the process-wide STA thread that runs every Revit API call.
 /// </summary>
 /// <remarks>
-///     TUnit keys a limit by its type. Every Revit test of a run shares this one.
+///     A WPF <see cref="Dispatcher" /> drives the thread.
+///     It pumps the Win32 messages COM marshaling needs and routes <c>await</c> continuations back to the thread through <see cref="DispatcherSynchronizationContext" />.
 /// </remarks>
-file sealed class RevitCountParallelLimit : IParallelLimit
-{
-    /// <summary>
-    ///     Shared instance used by every registered Revit test.
-    /// </summary>
-    public static RevitCountParallelLimit Default { get; } = new();
-
-    /// <summary>
-    ///     Maximum number of Revit tests allowed to execute simultaneously.
-    /// </summary>
-    public int Limit => 1;
-}
-
-/// <summary>
-///     Hosts the process-wide STA thread used for every Revit API call and dispatches asynchronous actions onto its WPF <see cref="Dispatcher" />.
-/// </summary>
 file sealed class RevitDispatcherThread
 {
     private readonly Dispatcher _dispatcher;
@@ -97,13 +79,15 @@ file sealed class RevitDispatcherThread
     }
 
     /// <summary>
-    ///     Process-wide instance backed by the dedicated Revit STA thread.
+    ///     Gets the process-wide instance of the Revit thread.
     /// </summary>
     public static RevitDispatcherThread Instance { get; } = new();
 
     /// <summary>
-    ///     Queues <paramref name="action" /> on the Revit thread and returns a task that completes once the action and all of its <c>await</c> continuations finish.
+    ///     Queues the specified action on the Revit thread.
     /// </summary>
+    /// <param name="action">The action to run on the Revit thread.</param>
+    /// <returns>A task that completes once the action and its <c>await</c> continuations finish.</returns>
     public ValueTask InvokeAsync(Func<ValueTask> action)
     {
         var operation = _dispatcher.InvokeAsync(() => action().AsTask(), DispatcherPriority.Normal);

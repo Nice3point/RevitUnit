@@ -4,7 +4,7 @@
     <ItemGroup>
         <TestingPlatformBuilderHook Include="Nice3point.TUnit.Revit">
             <DisplayName>Nice3point.TUnit.Revit</DisplayName>
-            <TypeFullName>Nice3point.TUnit.Revit.TestingPlatformBuilderHook</TypeFullName>
+            <TypeFullName>Nice3point.TUnit.Revit.Lifetimes.TestingPlatformBuilderHook</TypeFullName>
         </TestingPlatformBuilderHook>
     </ItemGroup>
 

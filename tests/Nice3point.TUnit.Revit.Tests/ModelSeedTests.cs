@@ -1,6 +1,3 @@
-using Nice3point.TUnit.Revit.Executors;
-using TUnit.Core.Executors;
-
 namespace Nice3point.TUnit.Revit.Tests;
 
 public sealed class ModelSeedTests : RevitApiTest
@@ -11,7 +8,6 @@ public sealed class ModelSeedTests : RevitApiTest
     private IList<Level> _levels = null!;
 
     [Before(Test)]
-    [HookExecutor<RevitThreadExecutor>]
     public void SeedModel()
     {
         _document = Application.NewProjectDocument(UnitSystem.Metric);
@@ -49,7 +45,6 @@ public sealed class ModelSeedTests : RevitApiTest
     }
 
     [After(Test)]
-    [HookExecutor<RevitThreadExecutor>]
     public void CloseModel()
     {
         _document.Close(false);

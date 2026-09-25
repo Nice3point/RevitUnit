@@ -1,3 +1,38 @@
+# 2027.0.3
+
+This release adds testing of the Revit user interface.
+
+## Revit UI testing
+
+`RevitApiUiTest` runs tests inside a Revit process started with its user interface.
+The `UiApplication` property exposes the `UIApplication` of that process, and every test body and hook runs on the Revit thread inside a Revit API context:
+
+```csharp
+public sealed class SelectionTests : RevitApiUiTest
+{
+    [Test]
+    public async Task SetElementIds_ActiveDocument_SelectsTheLevels()
+    {
+        var uiDocument = UiApplication.OpenAndActivateDocument(modelPath);
+        var levelIds = uiDocument.Document.CollectElements()
+            .OfClass<Level>()
+            .ToElementIds();
+
+        uiDocument.Selection.SetElementIds(levelIds);
+
+        await Assert.That(uiDocument.Selection.GetElementIds()).IsEquivalentTo(levelIds);
+    }
+}
+```
+
+- Revit starts with its user interface on the first UI test a run executes and closes when the run finishes.
+- UI tests run one at a time, in parallel with `RevitApiTest` tests.
+
+## Enhancements
+
+- `RevitApiTest` applies `RevitThreadExecutor` to every test and hook of the class.
+  A test or a hook no longer declares `[TestExecutor<RevitThreadExecutor>]` or `[HookExecutor<RevitThreadExecutor>]`.
+
 # 2027.0.2
 
 - One Revit connection now serves the whole test host process https://github.com/Nice3point/RevitUnit/issues/108.
@@ -78,11 +113,6 @@ TUnit initializes Revit from `C:\Program Files\Autodesk\Revit {version}` install
         </AssemblyAttribute>
     </ItemGroup>
     ```
-
-## Enhancements
-
-- Added new samples
-- Fixed ExecutionContext to capture AsyncLocal values like TestContext
 
 # 2026.0.4
 

@@ -1,6 +1,4 @@
 using Nice3point.Revit.Injector;
-using Nice3point.TUnit.Revit.Executors;
-using TUnit.Core.Executors;
 
 namespace Nice3point.TUnit.Revit.Tests.Abstractions;
 
@@ -20,7 +18,6 @@ public abstract class RevitSampleTest : RevitApiTest
     public Document? Document { get; private set; }
 
     [After(Test)]
-    [HookExecutor<RevitThreadExecutor>]
     public void CloseDocument()
     {
         Document?.Close(false);

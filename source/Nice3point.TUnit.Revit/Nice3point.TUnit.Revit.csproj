@@ -43,6 +43,7 @@
 
     <ItemGroup>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPI" PrivateAssets="all"/>
+        <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" PrivateAssets="all"/>
         <PackageReference Include="Nice3point.Revit.Injector" PrivateAssets="all"/>
         <PackageReference Include="TUnit"/>
         <PackageReference Include="PolyHook2.NET"/>
