@@ -21,7 +21,10 @@ public sealed class LocalizationHookTests : RevitApiTest
     public async Task Cities_English_ValidName()
     {
         // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+        var city = Application.Cities
+            .Cast<City>()
+            .OrderBy(city => city.Name)
+            .First();
 
         // Assert
         await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
@@ -38,7 +41,10 @@ public sealed class LocalizationAttributeTests : RevitApiTest
     public async Task Cities_English_ValidName()
     {
         // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+        var city = Application.Cities
+            .Cast<City>()
+            .OrderBy(city => city.Name)
+            .First();
 
         // Assert
         await Assert.That(city.Name).IsEqualTo("Aberdeen, MD");
@@ -60,7 +66,10 @@ public sealed class LocalizationAttributeTests : RevitApiTest
     public async Task Cities_Chinese_ValidName()
     {
         // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+        var city = Application.Cities
+            .Cast<City>()
+            .OrderBy(city => city.Name)
+            .First();
 
         // Assert
         await Assert.That(city.Name).IsEqualTo("K.I.索耶空军基地，密歇根");
@@ -76,7 +85,10 @@ public sealed class LocalizationDynamicSkipTests : RevitApiTest
     public async Task Cities_RandomCity_ValidLocalizedName()
     {
         // Arrange & Act
-        var city = Application.Cities.Cast<City>().OrderBy(city => city.Name).First();
+        var city = Application.Cities
+            .Cast<City>()
+            .OrderBy(city => city.Name)
+            .First();
 
         // Assert
         switch (Application.Language)

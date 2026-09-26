@@ -54,9 +54,9 @@ public sealed class ModelSeedTests : RevitApiTest
     public async Task FilteredElementCollector_ExteriorWalls_MatchSeededCount()
     {
         // Act
-        var walls = new FilteredElementCollector(_document)
-            .WhereElementIsNotElementType()
-            .OfClass(typeof(Wall))
+        var walls = _document.CollectElements()
+            .Instances()
+            .OfClass<Wall>()
             .ToList();
 
         // Assert
@@ -67,9 +67,9 @@ public sealed class ModelSeedTests : RevitApiTest
     public async Task FilteredElementCollector_Levels_MatchSeededCount()
     {
         // Act
-        var levels = new FilteredElementCollector(_document)
-            .WhereElementIsNotElementType()
-            .OfClass(typeof(Level))
+        var levels = _document.CollectElements()
+            .Instances()
+            .OfClass<Level>()
             .ToList();
 
         // Assert
@@ -80,9 +80,9 @@ public sealed class ModelSeedTests : RevitApiTest
     public async Task FilteredElementCollector_Grids_MatchSeededCount()
     {
         // Act
-        var grids = new FilteredElementCollector(_document)
-            .WhereElementIsNotElementType()
-            .OfClass(typeof(Grid))
+        var grids = _document.CollectElements()
+            .Instances()
+            .OfClass<Grid>()
             .ToList();
 
         // Assert
@@ -101,9 +101,9 @@ public sealed class ModelSeedTests : RevitApiTest
         _document.Delete(targetId);
         transaction.Commit();
 
-        var remainingWalls = new FilteredElementCollector(_document)
-            .WhereElementIsNotElementType()
-            .OfClass(typeof(Wall))
+        var remainingWalls = _document.CollectElements()
+            .Instances()
+            .OfClass<Wall>()
             .ToElementIds();
 
         // Assert

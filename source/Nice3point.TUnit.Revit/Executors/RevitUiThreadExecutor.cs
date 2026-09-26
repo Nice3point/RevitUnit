@@ -143,19 +143,7 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
     private static ValueTask InvokeAsync(Func<ValueTask> action)
     {
         ArgumentNullException.ThrowIfNull(action);
-
-        var executionContext = ExecutionContext.Capture();
-        if (executionContext is null)
-        {
-            return RevitUiRuntime.Context!.InvokeAsync(action);
-        }
-
-        return RevitUiRuntime.Context!.InvokeAsync(() =>
-        {
-            var result = default(ValueTask);
-            ExecutionContext.Run(executionContext, _ => result = action(), null);
-            return result;
-        });
+        return RevitUiRuntime.Context!.InvokeAsync(action);
     }
 
     private static void Report(RevitUiTestResult result)

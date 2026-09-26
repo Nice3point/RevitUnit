@@ -13,13 +13,16 @@ public sealed class SelectionTests : RevitApiUiTest
     [Test]
     public async Task SetElementIds_ActiveDocument_SelectsTheLevels()
     {
+        // Arrange
         var uiDocument = UiApplication.OpenAndActivateDocument(modelPath);
         var levelIds = uiDocument.Document.CollectElements()
             .OfClass<Level>()
             .ToElementIds();
 
+        // Act
         uiDocument.Selection.SetElementIds(levelIds);
 
+        // Assert
         await Assert.That(uiDocument.Selection.GetElementIds()).IsEquivalentTo(levelIds);
     }
 }

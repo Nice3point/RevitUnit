@@ -12,8 +12,8 @@ public abstract class RevitSampleTests(string extension, string? samplesDirector
         var document = OpenDocument(path);
 
         // Act
-        var elements = new FilteredElementCollector(document)
-            .WhereElementIsElementType()
+        var elements = document.CollectElements()
+            .Types()
             .ToElements();
 
         // Assert
@@ -32,8 +32,8 @@ public abstract class RevitSampleTests(string extension, string? samplesDirector
         var document = OpenDocument(path);
 
         // Act
-        var elements = new FilteredElementCollector(document)
-            .WhereElementIsNotElementType()
+        var elements = document.CollectElements()
+            .Instances()
             .ToElements();
 
         // Assert
@@ -96,11 +96,11 @@ public sealed class ModelSampleTests() : RevitSampleTests(".rvt")
     {
         // Arrange
         var document = OpenDocument(path);
-        var elementIds = new FilteredElementCollector(document)
-            .WhereElementIsNotElementType()
+        var elementIds = document.CollectElements()
+            .Instances()
             .OfCategory(BuiltInCategory.OST_Dimensions)
 #if REVIT2025_OR_GREATER
-            .OfClass(typeof(RadialDimension))
+            .OfClass<RadialDimension>()
             .ToElementIds();
 #else
             .Cast<Dimension>()
