@@ -5,5 +5,6 @@ namespace Nice3point.TUnit.Revit.Ui.Messages;
 /// <summary>
 ///     Provides the source-generated serialization context of the UI test messages.
 /// </summary>
-[JsonSerializable(typeof(RevitUiTestResult))]
+[JsonSerializable(typeof(RevitUiTestEvent))]
+[JsonSerializable(typeof(RevitUiTestCommand))]
 internal sealed partial class RevitUiMessageJsonContext : JsonSerializerContext;

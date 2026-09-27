@@ -1,5 +1,6 @@
 using System.Windows.Threading;
 using Nice3point.TUnit.Revit.Limiters;
+using Nice3point.TUnit.Revit.Sessions;
 using TUnit.Core.Interfaces;
 
 namespace Nice3point.TUnit.Revit.Executors;
@@ -14,12 +15,18 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </remarks>
 public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
 {
+    /// <summary>
+    ///     Gets a value indicating whether the calling thread is the Revit thread.
+    /// </summary>
+    internal static bool IsRevitThread => RevitDispatcherThread.Instance.CheckAccess();
+
     /// <inheritdoc />
     /// <remarks>
     ///     The executor applies the Revit parallel limit to the registered test.
     /// </remarks>
     public ValueTask OnTestRegistered(TestRegisteredContext context)
     {
+        RevitSession.Instance.Request(context.TestContext.ClassContext.AssemblyContext.TestSessionContext);
         context.SetParallelLimiter(RevitParallelLimit.Default);
         return default;
     }
@@ -92,5 +99,15 @@ file sealed class RevitDispatcherThread
     {
         var operation = _dispatcher.InvokeAsync(() => action().AsTask(), DispatcherPriority.Normal);
         return new ValueTask(operation.Task.Unwrap());
+    }
+
+    /// <summary>
+    ///     Determines whether the calling thread is the Revit thread.
+    /// </summary>
+    /// <returns><see langword="true" /> if the calling thread is the Revit thread; otherwise, <see langword="false" />.</returns>
+    [Pure]
+    public bool CheckAccess()
+    {
+        return _dispatcher.CheckAccess();
     }
 }

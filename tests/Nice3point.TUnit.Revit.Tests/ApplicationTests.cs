@@ -21,4 +21,14 @@ public sealed class ApplicationTests : RevitApiTest
         // Assert
         await Assert.That(point.DistanceTo(XYZ.Zero)).IsEqualTo(7).Within(0.1);
     }
+
+    [Test]
+    public async Task RevitSessionSetup_OffTheRevitThread_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var testSession = TestContext.Current!.ClassContext.AssemblyContext.TestSessionContext;
+
+        // Act & Assert
+        await Assert.That(() => Task.Run(() => RevitSessionSetup(testSession))).Throws<InvalidOperationException>();
+    }
 }

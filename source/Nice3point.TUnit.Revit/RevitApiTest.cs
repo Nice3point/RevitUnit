@@ -31,6 +31,7 @@ public abstract class RevitApiTest
     ///     Test discovery executes no test and does not start Revit.
     /// </remarks>
     [Before(TestSession, Order = int.MinValue)]
+    [HookExecutor<RevitThreadExecutor>]
     public static void RevitSessionSetup(TestSessionContext context)
     {
         if (RevitUiRuntime.InRevitProcess)
@@ -38,8 +39,7 @@ public abstract class RevitApiTest
             return;
         }
 
-        // TestClasses includes the classes a property filter, such as a category, excludes.
-        if (!context.TestClasses.Any(static testClass => testClass.ClassType.IsSubclassOf(typeof(RevitApiTest))))
+        if (!RevitSession.Instance.IsRequested(context))
         {
             return;
         }

@@ -1,8 +1,6 @@
 using Nice3point.TUnit.Revit.Limiters;
 using Nice3point.TUnit.Revit.Sessions;
 using Nice3point.TUnit.Revit.Ui;
-using Nice3point.TUnit.Revit.Ui.Messages;
-using TUnit.Core.Exceptions;
 using TUnit.Core.Interfaces;
 
 namespace Nice3point.TUnit.Revit.Executors;
@@ -20,73 +18,73 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
     /// <inheritdoc />
     public ValueTask ExecuteBeforeTestDiscoveryHook(MethodMetadata hookMethodInfo, BeforeTestDiscoveryContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteBeforeTestSessionHook(MethodMetadata hookMethodInfo, TestSessionContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteBeforeAssemblyHook(MethodMetadata hookMethodInfo, AssemblyHookContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteBeforeClassHook(MethodMetadata hookMethodInfo, ClassHookContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteBeforeTestHook(MethodMetadata hookMethodInfo, TestContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return RevitUiRuntime.Application?.InvokeBeforeTestHookAsync(context.Metadata.TestDetails.TestId, action) ?? default;
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteAfterTestDiscoveryHook(MethodMetadata hookMethodInfo, TestDiscoveryContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteAfterTestSessionHook(MethodMetadata hookMethodInfo, TestSessionContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteAfterAssemblyHook(MethodMetadata hookMethodInfo, AssemblyHookContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteAfterClassHook(MethodMetadata hookMethodInfo, ClassHookContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteAfterTestHook(MethodMetadata hookMethodInfo, TestContext context, Func<ValueTask> action)
     {
-        return RunHookAsync(action);
+        return InvokeAsync(action);
     }
 
     /// <inheritdoc />
     public ValueTask ExecuteTest(TestContext context, Func<ValueTask> action)
     {
-        var testId = context.Metadata.TestDetails.TestId;
-        if (RevitUiRuntime.InRevitProcess)
+        if (RevitUiRuntime.Application is { } runtime)
         {
-            return RunAndReportAsync(testId, action);
+            return runtime.ExecuteTestAsync(context.Metadata.TestDetails.TestId, action);
         }
 
-        return new ValueTask(RevitUiSession.Instance.RunTestAsync(testId));
+        var session = RevitUiSession.Get(context);
+        return new ValueTask(session.RunTestAsync(context));
     }
 
     /// <inheritdoc />
@@ -95,59 +93,19 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
     /// <inheritdoc />
     public ValueTask OnTestRegistered(TestRegisteredContext context)
     {
+        if (RevitUiRuntime.Application is { } runtime)
+        {
+            runtime.Register(context);
+            return default;
+        }
+
+        RevitUiSession.Get(context.TestContext).Register(context.TestDetails.TestId);
         context.SetParallelLimiter(RevitUiParallelLimit.Default);
         return default;
     }
 
-    private static async ValueTask RunAndReportAsync(string testId, Func<ValueTask> action)
-    {
-        try
-        {
-            await InvokeAsync(action).ConfigureAwait(false);
-            Report(new RevitUiTestResult
-            {
-                TestId = testId,
-                Status = RevitUiTestStatus.Passed
-            });
-        }
-        catch (SkipTestException exception)
-        {
-            Report(new RevitUiTestResult
-            {
-                TestId = testId,
-                Status = RevitUiTestStatus.Skipped,
-                Message = exception.Message
-            });
-
-            throw;
-        }
-        catch (Exception exception)
-        {
-            Report(new RevitUiTestResult
-            {
-                TestId = testId,
-                Status = RevitUiTestStatus.Failed,
-                Message = exception.Message,
-                StackTrace = exception.StackTrace
-            });
-
-            throw;
-        }
-    }
-
-    private static ValueTask RunHookAsync(Func<ValueTask> action)
-    {
-        return RevitUiRuntime.InRevitProcess ? InvokeAsync(action) : default;
-    }
-
     private static ValueTask InvokeAsync(Func<ValueTask> action)
     {
-        ArgumentNullException.ThrowIfNull(action);
-        return RevitUiRuntime.Context!.InvokeAsync(action);
-    }
-
-    private static void Report(RevitUiTestResult result)
-    {
-        RevitUiRuntime.Context!.Send(result.Serialize());
+        return RevitUiRuntime.Application?.InvokeAsync(action) ?? default;
     }
 }

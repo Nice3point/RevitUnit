@@ -5,7 +5,7 @@ using Nice3point.TUnit.Revit.Sessions;
 namespace Nice3point.TUnit.Revit.Lifetimes;
 
 /// <summary>
-///     Represents the lifetime that releases the Revit connections when the test application finishes.
+///     Represents the lifetime that releases the Revit connection when the test application finishes.
 /// </summary>
 /// <remarks>
 ///     The test platform runs the lifetime after the last test session of the process and before the runtime begins shutting down, in the console host of <c>dotnet run</c> and <c>dotnet test</c> as well as in the server host an IDE reuses across runs.
@@ -25,7 +25,7 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
     public string DisplayName => "Revit connection lifetime";
 
     /// <inheritdoc />
-    public string Description => "Releases the Revit connections when the test application finishes.";
+    public string Description => "Releases the Revit connection when the test application finishes.";
 
     /// <inheritdoc />
     public Task<bool> IsEnabledAsync()
@@ -45,13 +45,6 @@ public sealed class RevitConnectionLifetime : ITestHostApplicationLifetime
     /// </remarks>
     public async Task AfterRunAsync(int exitCode, CancellationToken cancellationToken)
     {
-        try
-        {
-            await RevitSession.Instance.StopAsync().ConfigureAwait(false);
-        }
-        finally
-        {
-            await RevitUiSession.Instance.StopAsync().ConfigureAwait(false);
-        }
+        await RevitSession.Instance.StopAsync().ConfigureAwait(false);
     }
 }

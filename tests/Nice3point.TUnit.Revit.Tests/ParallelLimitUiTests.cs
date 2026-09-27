@@ -6,20 +6,6 @@ public sealed class ParallelLimitUiTests : RevitApiUiTest
     private static int _peak;
 
     [Test]
-    public async Task RevitUiTest_RunningInsideRevit_HasALimitOfOne()
-    {
-        // Arrange & Act
-        var limiter = TestContext.Current!.Parallelism.Limiter;
-
-        // Assert
-        using (Assert.Multiple())
-        {
-            await Assert.That(limiter).IsNotNull();
-            await Assert.That(limiter!.Limit).IsEqualTo(1);
-        }
-    }
-
-    [Test]
     [Repeat(4)]
     public async Task RevitUiTests_ScheduledTogether_ObserveThemselvesAlone()
     {

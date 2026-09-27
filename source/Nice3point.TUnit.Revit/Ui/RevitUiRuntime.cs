@@ -1,5 +1,3 @@
-using Nice3point.Revit.Injector.Ui;
-
 namespace Nice3point.TUnit.Revit.Ui;
 
 /// <summary>
@@ -13,13 +11,13 @@ internal static class RevitUiRuntime
     public const string Category = "RevitUiTest";
 
     /// <summary>
-    ///     Gets or sets the context of the Revit user interface application.
+    ///     Gets or sets the runtime of the UI tests inside the Revit user interface application.
     /// </summary>
     /// <value>Defaults to <see langword="null" /> outside the Revit user interface application.</value>
-    public static RevitUiContext? Context { get; set; }
+    public static RevitUiApplicationRuntime? Application { get; set; }
 
     /// <summary>
     ///     Gets a value indicating whether the current run executes inside the Revit user interface application.
     /// </summary>
-    public static bool InRevitProcess => Context is not null;
+    public static bool InRevitProcess => Application is not null;
 }

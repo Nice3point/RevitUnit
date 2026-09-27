@@ -193,7 +193,7 @@ public sealed class UiDocumentTests : RevitApiUiTest
     [Test]
     public async Task SetElementIds_ActiveDocument_SelectsTheLevels()
     {
-        var levelIds = uiDocument.Document.CollectElements()
+        var levelIds = _uiDocument.Document.CollectElements()
             .OfClass<Level>()
             .ToElementIds();
 
@@ -205,7 +205,7 @@ public sealed class UiDocumentTests : RevitApiUiTest
     [Test]
     public async Task GetOpenUIViews_ActiveDocument_ContainsTheActiveView()
     {
-        var openViewIds = uiDocument.GetOpenUIViews()
+        var openViewIds = _uiDocument.GetOpenUIViews()
             .Select(uiView => uiView.ViewId)
             .ToList();
 
@@ -221,6 +221,19 @@ public sealed class UiDocumentTests : RevitApiUiTest
     }
 }
 ```
+
+UI tests run one at a time, in parallel with `RevitApiTest` tests.
+To run them in one queue with `RevitApiTest` tests, mark the class with `[ParallelLimiter<RevitParallelLimit>]`:
+
+```csharp
+[ParallelLimiter<RevitParallelLimit>]
+public sealed class UiDocumentTests : RevitApiUiTest
+{
+}
+```
+
+A UI test with a `[Timeout]` passes its `CancellationToken` to long-running work.
+The next UI test starts only once the body of the timed-out test returns.
 
 > [!NOTE]
 > The examples demonstrate basic testing functionality. This library **only adds support for working within the Revit API context**. For comprehensive documentation on assertions, attributes, test configuration, and

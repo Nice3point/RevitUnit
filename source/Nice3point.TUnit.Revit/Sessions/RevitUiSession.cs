@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Nice3point.Revit.Injector;
 using Nice3point.Revit.Injector.Ui;
 using Nice3point.TUnit.Revit.Ui;
@@ -9,76 +10,174 @@ using Assembly = System.Reflection.Assembly;
 namespace Nice3point.TUnit.Revit.Sessions;
 
 /// <summary>
-///     Represents the one Revit user interface session that serves every UI test of the test host process.
+///     Represents the Revit user interface session that serves the UI tests of one test session.
 /// </summary>
 /// <remarks>
-///     The first UI test opens the session, and <see cref="StopAsync" /> closes it when the test application finishes.
-///     A test awaits the result the session receives for its identifier.
+///     Every test session holds a session of its own, and an IDE that reuses one test host process across runs starts a test session per run.
+///     The first UI test that starts opens the session, and <see cref="StopAsync" /> closes it when the test session finishes.
+///     The session schedules in Revit the UI tests registered before it opens.
+///     A test waits until it is pending in Revit and until Revit reports the result of the test executed before it, then the session executes it and awaits the result Revit reports for the identifier of the test.
+///     A test that the test host cancels, or whose timeout elapses, keeps the next test waiting until Revit reports its result.
 /// </remarks>
 internal sealed class RevitUiSession
 {
     private static readonly TimeSpan CloseTimeout = TimeSpan.FromSeconds(30);
-    private readonly TaskCompletionSource _connected = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private readonly ConcurrentQueue<string> _receivedTestIds = new();
-    private readonly ConcurrentDictionary<string, TaskCompletionSource<RevitUiTestResult>> _results = new();
+    private static readonly ConditionalWeakTable<TestSessionContext, RevitUiSession> Sessions = new();
+    private readonly SemaphoreSlim _executionSlot = new(1, 1);
+
+    private readonly ConcurrentDictionary<string, byte> _registeredTestIds = new();
     private readonly CancellationTokenSource _shutdown = new();
     private readonly Lock _startLock = new();
-    private RevitUiConnection? _connection;
-    private Exception? _fault;
+    private readonly ConcurrentDictionary<string, TestState> _tests = new();
+    private volatile RevitUiConnection? _connection;
+    private volatile Exception? _fault;
+    private volatile HashSet<string>? _scheduledTestIds;
     private Task? _sessionTask;
 
     /// <summary>
-    ///     Gets the session of the test host process.
+    ///     Gets the session of the test session that runs the specified test.
     /// </summary>
-    public static RevitUiSession Instance { get; } = new();
-
-    /// <summary>
-    ///     Opens the session when it is closed, then awaits the connection to the Revit user interface application.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous wait operation.</returns>
-    public Task WaitConnectedAsync()
+    /// <param name="context">The context of the test.</param>
+    /// <returns>The session of the test session.</returns>
+    public static RevitUiSession Get(TestContext context)
     {
-        EnsureStarted();
-        return _connected.Task;
+        return Sessions.GetValue(context.ClassContext.AssemblyContext.TestSessionContext, static _ => new RevitUiSession());
     }
 
     /// <summary>
-    ///     Opens the session when it is closed, then awaits the result of the specified test.
+    ///     Skips the pending UI tests of the specified test session, then closes its session once Revit finishes them, ending Revit when it does not finish in time.
     /// </summary>
-    /// <param name="testId">The identifier of the test to await.</param>
+    /// <param name="context">The context of the test session.</param>
+    /// <returns>A task that represents the asynchronous stop operation.</returns>
+    /// <remarks>
+    ///     A call for a test session that never started Revit has no effect.
+    /// </remarks>
+    public static Task StopAsync(TestSessionContext context)
+    {
+        if (!Sessions.TryGetValue(context, out var session))
+        {
+            return Task.CompletedTask;
+        }
+
+        Sessions.Remove(context);
+        return session.CloseAsync();
+    }
+
+    /// <summary>
+    ///     Records a UI test the test session registers.
+    /// </summary>
+    /// <param name="testId">The identifier of the registered test.</param>
+    public void Register(string testId)
+    {
+        _registeredTestIds.TryAdd(testId, 0);
+    }
+
+    /// <summary>
+    ///     Opens the session when it is closed, awaits the specified test to become pending in Revit, then awaits the slot that executes one test at a time.
+    /// </summary>
+    /// <param name="testId">The identifier of the test to start.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> used to cancel the wait.</param>
+    /// <returns>A task that represents the asynchronous start operation.</returns>
+    /// <remarks>
+    ///     The test holds the slot until Revit reports its result, or until <see cref="EndTest" /> ends a test the session never executed.
+    /// </remarks>
+    public async Task StartTestAsync(string testId, CancellationToken cancellationToken)
+    {
+        await WaitPendingAsync(testId, cancellationToken).ConfigureAwait(false);
+        await _executionSlot.WaitAsync(cancellationToken).ConfigureAwait(false);
+        GetTest(testId).HoldSlot();
+    }
+
+    /// <summary>
+    ///     Executes the specified pending test in Revit, then awaits its result and copies the output of the test into the context.
+    /// </summary>
+    /// <param name="context">The context of the test to execute.</param>
     /// <returns>A task that represents the asynchronous test run.</returns>
     /// <exception cref="SkipTestException">The test was skipped inside Revit.</exception>
     /// <exception cref="RevitUiTestException">The test failed inside Revit.</exception>
-    public async Task RunTestAsync(string testId)
+    /// <exception cref="System.OperationCanceledException">The token of the test was cancelled, and the session cancels the test in Revit.</exception>
+    public async Task RunTestAsync(TestContext context)
     {
-        EnsureStarted();
+        var testId = context.Metadata.TestDetails.TestId;
+        var cancellationToken = context.Execution.CancellationToken;
+        await WaitPendingAsync(testId, cancellationToken).ConfigureAwait(false);
 
-        var completion = GetCompletion(testId);
-        if (_fault is not null)
+        var test = GetTest(testId);
+        if (!test.Result.Task.IsCompleted)
         {
-            completion.TrySetException(_fault);
+            test.IsExecuted = true;
+            _connection!.Send(new RevitUiTestExecution
+            {
+                TestId = testId
+            }.Serialize());
         }
 
-        var result = await completion.Task.ConfigureAwait(false);
+        RevitUiTestResult result;
+        try
+        {
+            result = await test.Result.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested && test.IsExecuted)
+        {
+            _connection!.Send(new RevitUiTestCancellation
+            {
+                TestId = testId
+            }.Serialize());
+            throw;
+        }
+
+        if (result.StandardOutput is not null)
+        {
+            await context.Output.StandardOutput.WriteAsync(result.StandardOutput).ConfigureAwait(false);
+        }
+
+        if (result.StandardError is not null)
+        {
+            await context.Output.ErrorOutput.WriteAsync(result.StandardError).ConfigureAwait(false);
+        }
+
         switch (result.Status)
         {
             case RevitUiTestStatus.Passed:
                 return;
             case RevitUiTestStatus.Skipped:
-                throw new SkipTestException(result.Message ?? "The test was skipped inside Revit.");
+                throw new SkipTestException(result.Message ?? "The test was skipped in Revit.");
             default:
-                throw new RevitUiTestException(result.Message ?? "The test failed inside Revit.", result.StackTrace);
+                throw new RevitUiTestException(result.Message ?? "The test failed in Revit.", result.StackTrace);
         }
     }
 
     /// <summary>
-    ///     Closes the session once Revit finishes the UI tests, ending it when Revit does not finish in time.
+    ///     Releases the slot of the specified test once the test host ends it.
     /// </summary>
-    /// <returns>A task that represents the asynchronous stop operation.</returns>
+    /// <param name="testId">The identifier of the ended test.</param>
     /// <remarks>
-    ///     A call on a session that never opened has no effect.
+    ///     A test executed in Revit keeps the slot until Revit reports its result.
     /// </remarks>
-    public async Task StopAsync()
+    public void EndTest(string testId)
+    {
+        if (!_tests.TryGetValue(testId, out var test))
+        {
+            return;
+        }
+
+        if (!test.IsExecuted || test.Result.Task.IsCompleted)
+        {
+            test.ReleaseSlot();
+        }
+    }
+
+    private Task WaitPendingAsync(string testId, CancellationToken cancellationToken)
+    {
+        lock (_startLock)
+        {
+            _sessionTask ??= Task.Run(ReceiveEventsAsync, CancellationToken.None);
+        }
+
+        return GetTest(testId).Pending.Task.WaitAsync(cancellationToken);
+    }
+
+    private async Task CloseAsync()
     {
         if (_sessionTask is null)
         {
@@ -92,22 +191,17 @@ internal sealed class RevitUiSession
 
         await _shutdown.CancelAsync().ConfigureAwait(false);
         await _sessionTask.ConfigureAwait(false);
+        _shutdown.Dispose();
+        _executionSlot.Dispose();
 
+        // The disposal ends a connection that opened after the close began.
         if (_connection is not null)
         {
             await _connection.DisposeAsync().ConfigureAwait(false);
         }
     }
 
-    private void EnsureStarted()
-    {
-        lock (_startLock)
-        {
-            _sessionTask ??= Task.Run(ReceiveResultsAsync);
-        }
-    }
-
-    private async Task ReceiveResultsAsync()
+    private async Task ReceiveEventsAsync()
     {
         try
         {
@@ -125,36 +219,108 @@ internal sealed class RevitUiSession
                 .ConfigureAwait(false);
 
             _connection = connection;
-            _connected.TrySetResult();
+            Schedule(connection);
 
             while (await connection.ReceiveAsync(_shutdown.Token).ConfigureAwait(false) is { } message)
             {
-                var result = RevitUiTestResult.Parse(message);
-                _receivedTestIds.Enqueue(result.TestId);
-                GetCompletion(result.TestId).TrySetResult(result);
+                switch (RevitUiTestEvent.Parse(message))
+                {
+                    case RevitUiTestPending pending:
+                        GetTest(pending.TestId).Pending.TrySetResult();
+                        break;
+                    case RevitUiTestResult result:
+                        GetTest(result.TestId).Complete(result);
+                        break;
+                }
             }
 
-            FaultPendingResults(new InvalidOperationException(
-                $"Revit closed before it reported the test. Revit reported {_receivedTestIds.Count} result(s): [{string.Join(", ", _receivedTestIds)}]."));
+            Fault(new InvalidOperationException("Revit closed before it reported the test."));
         }
         catch (Exception exception)
         {
-            FaultPendingResults(exception);
+            Fault(exception);
         }
     }
 
-    private TaskCompletionSource<RevitUiTestResult> GetCompletion(string testId)
+    private void Schedule(RevitUiConnection connection)
     {
-        return _results.GetOrAdd(testId, static _ => new TaskCompletionSource<RevitUiTestResult>(TaskCreationOptions.RunContinuationsAsynchronously));
+        var scheduledTestIds = new HashSet<string>(_registeredTestIds.Keys);
+        _scheduledTestIds = scheduledTestIds;
+
+        connection.Send(new RevitUiTestSchedule
+        {
+            TestIds = [.. scheduledTestIds]
+        }.Serialize());
+
+        foreach (var testId in _tests.Keys)
+        {
+            GetTest(testId);
+        }
     }
 
-    private void FaultPendingResults(Exception exception)
+    private TestState GetTest(string testId)
+    {
+#if NET
+        var test = _tests.GetOrAdd(testId, static (_, executionSlot) => new TestState(executionSlot), _executionSlot);
+#else
+        var test = _tests.GetOrAdd(testId, _ => new TestState(_executionSlot));
+#endif
+        if (_fault is { } fault)
+        {
+            test.Fault(fault);
+        }
+        else if (_scheduledTestIds is { } scheduledTestIds && !scheduledTestIds.Contains(testId))
+        {
+            test.Complete(RevitUiTestResult.Failed(testId, "The test registered after the Revit session opened, and Revit has not scheduled it."));
+        }
+
+        return test;
+    }
+
+    private void Fault(Exception exception)
     {
         _fault = exception;
-        _connected.TrySetResult();
-        foreach (var completion in _results.Values)
+        foreach (var test in _tests.Values)
         {
-            completion.TrySetException(exception);
+            test.Fault(exception);
+        }
+    }
+
+    private sealed class TestState(SemaphoreSlim executionSlot)
+    {
+        private int _isHoldingSlot;
+
+        public TaskCompletionSource Pending { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource<RevitUiTestResult> Result { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public bool IsExecuted { get; set; }
+
+        public void HoldSlot()
+        {
+            Volatile.Write(ref _isHoldingSlot, 1);
+        }
+
+        public void ReleaseSlot()
+        {
+            if (Interlocked.Exchange(ref _isHoldingSlot, 0) == 1)
+            {
+                executionSlot.Release();
+            }
+        }
+
+        public void Complete(RevitUiTestResult result)
+        {
+            Result.TrySetResult(result);
+            Pending.TrySetResult();
+            ReleaseSlot();
+        }
+
+        public void Fault(Exception exception)
+        {
+            Result.TrySetException(exception);
+            Pending.TrySetResult();
+            ReleaseSlot();
         }
     }
 }
