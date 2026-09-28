@@ -30,7 +30,7 @@ It adds only the Revit execution model on top of TUnit; TUnit provides the asser
 * TUnit dispatches only `OnTestRegistered` to an executor. A receiver interface an executor implements is never called; a test receiver belongs on an attribute or on the test base class.
 * UI code branches on `RevitUiRuntime.Application`, `null` in the test host process and set inside Revit.
 * A test session owns one Revit user interface session. It opens on the first UI test, schedules exactly the UI tests the session registered, and closes when the test session finishes; the next IDE run opens a new one.
-* `RevitConnectionLifetime` is an `ITestHostApplicationLifetime`. The package registers it through the `TestingPlatformBuilderHook` item of `build/Nice3point.TUnit.Revit.props`, packed into `build` and `buildTransitive`; a project that writes its own entry point calls `AddRevit` instead. The test project imports the same props, which a project reference does not deliver.
+* `RevitConnectionLifetime` is an `ITestHostApplicationLifetime`. The package registers it through the `TestingPlatformBuilderHook` item of `build/Nice3point.TUnit.Revit.props`, packed into `build` and `buildTransitive`; a project that writes its own entry point calls `AddRevit` instead. The test project imports the same props. A project reference imports no build assets.
 
 ## Repository map
 

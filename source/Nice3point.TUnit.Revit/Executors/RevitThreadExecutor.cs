@@ -53,7 +53,7 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
 ///     Represents the process-wide STA thread that runs every Revit API call.
 /// </summary>
 /// <remarks>
-///     A WPF <see cref="Dispatcher" /> drives the thread.
+///     A WPF <see cref="Dispatcher" /> runs the message loop of the thread.
 ///     It pumps the Win32 messages COM marshaling needs and routes <c>await</c> continuations back to the thread through <see cref="DispatcherSynchronizationContext" />.
 /// </remarks>
 file sealed class RevitDispatcherThread
