@@ -1,3 +1,7 @@
+# 2027.0.5
+
+- Fixed assembly load context for .Net core versions https://github.com/Nice3point/RevitUnit/issues/120
+
 # 2027.0.4
 
 This release adds testing of the Revit user interface.
@@ -53,7 +57,7 @@ UI tests use the `RevitAPIUI` types, add the `Nice3point.Revit.Api.RevitAPIUI` p
 - Updated TUnit to 1.44
 - Reworked `RevitThreadExecutor`, fixing crashes and thread-affinity issues
 - TUnit 1.33 changed the order in which test classes are initialised: instance field initialisers now run before the Revit session hook.
-  Field initialisers that previously worked are no longer safe, because they load Revit API types before the application is injected.
+  Field initialisers that previously worked are no longer safe. They load Revit API types before the application is injected.
   Rewrite them lazily https://github.com/Nice3point/RevitUnit/commit/c92b6b99855c2a14bd0dff5cf9c6ccb7802c8ebd#diff-6f718c2ac5a94cce0c4a11e9d8c457891d449eb7b32ba49e8b7595d0a2b42cdb.
 
   Before:
@@ -76,7 +80,7 @@ This release adds support for Revit 2027, testing for different languages and cu
 
 TUnit initializes Revit with the `English - United States` language. To override these defaults, use assembly-level attributes:
 
-- Add the attributes to any .cs file in your project (e.g., TestsConfiguration.cs):
+- Add the attributes to any .cs file of the test project, for example, `TestsConfiguration.cs`:
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
@@ -84,7 +88,7 @@ TUnit initializes Revit with the `English - United States` language. To override
     [assembly: RevitLanguage("ENU")]
     ```
 
-- Add the attributes directly to your .csproj file:
+- Add the attributes directly to the .csproj file of the test project:
 
     ```xml
     <!-- Revit Environment Configuration -->
@@ -102,7 +106,7 @@ or [LanguageType](https://www.revitapidocs.com/2026/dfda33cf-cbff-9fde-6672-3840
 
 TUnit initializes Revit from `C:\Program Files\Autodesk\Revit {version}` installation path. To override these defaults, use assembly-level attributes:
 
-- Add the attributes to any .cs file in your project (e.g., TestsConfiguration.cs):
+- Add the attributes to any .cs file of the test project, for example, `TestsConfiguration.cs`:
 
     ```csharp
     using Nice3point.Revit.Injector.Attributes;
@@ -110,7 +114,7 @@ TUnit initializes Revit from `C:\Program Files\Autodesk\Revit {version}` install
     [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
     ```
 
-- Add the attributes directly to your .csproj file:
+- Add the attributes directly to the .csproj file of the test project:
 
     ```xml
     <!-- Revit Environment Configuration -->
