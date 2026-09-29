@@ -1,3 +1,7 @@
+# 2027.0.6
+
+- Fixed the `Microsoft.Bcl.AsyncInterfaces` and `System.Text.Json` load errors for Revit 2021 to 2024 https://github.com/Nice3point/RevitUnit/issues/122
+
 # 2027.0.5
 
 - Fixed assembly load context for .Net core versions https://github.com/Nice3point/RevitUnit/issues/120
