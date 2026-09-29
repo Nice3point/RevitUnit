@@ -57,6 +57,7 @@
 
         <!-- System dependencies -->
         <PackageVersion Include="System.Memory" Version="4.6.3" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
+        <PackageVersion Include="System.Text.Json" Version="10.0.12" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
     </ItemGroup>
 
     <!-- Development dependencies -->

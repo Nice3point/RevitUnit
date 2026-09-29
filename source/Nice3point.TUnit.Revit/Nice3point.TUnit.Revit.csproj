@@ -56,6 +56,7 @@
 
     <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
         <Reference Include="WindowsBase"/>
+        <PackageReference Include="System.Text.Json"/>
     </ItemGroup>
 
     <Target Name="CopyRepackDependencies" AfterTargets="Build" Condition="$(Configuration.Contains('Release'))">
