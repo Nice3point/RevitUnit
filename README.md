@@ -239,7 +239,7 @@ The next UI test starts only once the body of the timed-out test returns.
 > The examples demonstrate basic testing functionality. This library **only adds support for working within the Revit API context**. For comprehensive documentation on assertions, attributes, test configuration, and
 > advanced features, please refer to the official [TUnit documentation](https://thomhurst.github.io/TUnit/).
 
-More examples, including parametrized model and family tests, are available in the [test project](https://github.com/Nice3point/RevitUnit/tree/main/Nice3point.TUnit.Revit.Tests).
+More examples, including parametrized model and family tests, are available in the [test project](https://github.com/Nice3point/RevitUnit/tree/main/tests/Nice3point.TUnit.Revit.Tests).
 
 ## Test configuration
 
