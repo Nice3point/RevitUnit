@@ -1,8 +1,11 @@
-# Unreleased
+# 2027.0.7
 
-- Wait for a timed-out or cancelled Revit test body before running cleanup hooks or closing the Revit connection.
-- Exclude UI test hooks and retry delays from the test body timeout.
-- Report UI session cleanup failures even when every test passed.
+- `RevitApiTest` waits for a timed-out or cancelled test body to finish before running cleanup hooks, starting another test, or closing the Revit connection.
+- `RevitApiUiTest` applies `[Timeout]` to each test body attempt and respects the configured `[Retry]` count.
+  Setup hooks, cleanup hooks, and retry delays do not cause the test body to time out.
+- `RevitApiUiTest` loads native NuGet dependencies from runtime-specific directories on Revit 2025 and later.
+- `RevitApiUiTest` timeout failures preserve their timeout status, configured timeout, and stack trace from Revit.
+- Failures in `[After(TestSession)]` and `[After(Assembly)]` hooks inside Revit fail the `RevitApiUiTest` run even when every test body passes.
 
 # 2027.0.6
 
