@@ -95,6 +95,7 @@ internal sealed class RevitUiSession
     /// <returns>A task that represents the asynchronous test run.</returns>
     /// <exception cref="SkipTestException">The test was skipped inside Revit.</exception>
     /// <exception cref="RevitUiTestException">The test failed inside Revit.</exception>
+    /// <exception cref="RevitUiTimeoutException">The test timed out inside Revit.</exception>
     /// <exception cref="System.OperationCanceledException">The token of the test was cancelled, and the session cancels the test in Revit.</exception>
     public async Task RunTestAsync(TestContext context)
     {
@@ -126,6 +127,8 @@ internal sealed class RevitUiSession
             throw;
         }
 
+        context.Metadata.TestDetails.Timeout = result.Timeout;
+
         if (result.StandardOutput is not null)
         {
             await context.Output.StandardOutput.WriteAsync(result.StandardOutput).ConfigureAwait(false);
@@ -142,6 +145,8 @@ internal sealed class RevitUiSession
                 return;
             case RevitUiTestStatus.Skipped:
                 throw new SkipTestException(result.Message ?? "The test was skipped in Revit.");
+            case RevitUiTestStatus.TimedOut:
+                throw new RevitUiTimeoutException(result.Message ?? "The test timed out in Revit.", result.StackTrace);
             default:
                 throw new RevitUiTestException(result.Message ?? "The test failed in Revit.", result.StackTrace);
         }
@@ -184,20 +189,52 @@ internal sealed class RevitUiSession
             return;
         }
 
-        if (_connection is not null)
+        var connection = _connection;
+        try
         {
-            await _connection.CloseAsync(CloseTimeout).ConfigureAwait(false);
+            if (connection is not null)
+            {
+                var endSessionTask = Task.Run(() => connection.Send(new RevitUiTestSessionEnd().Serialize()), CancellationToken.None);
+                await Task.WhenAll(endSessionTask, _sessionTask).WaitAsync(CloseTimeout).ConfigureAwait(false);
+            }
+            else
+            {
+                await _shutdown.CancelAsync().ConfigureAwait(false);
+                await _sessionTask.WaitAsync(CloseTimeout).ConfigureAwait(false);
+            }
         }
-
-        await _shutdown.CancelAsync().ConfigureAwait(false);
-        await _sessionTask.ConfigureAwait(false);
-        _shutdown.Dispose();
-        _executionSlot.Dispose();
-
-        // The disposal ends a connection that opened after the close began.
-        if (_connection is not null)
+        finally
         {
-            await _connection.DisposeAsync().ConfigureAwait(false);
+            await _shutdown.CancelAsync().ConfigureAwait(false);
+            RevitUiConnection? closingConnection;
+            lock (_startLock)
+            {
+                closingConnection = _connection;
+            }
+
+            try
+            {
+                if (closingConnection is not null)
+                {
+                    await closingConnection.CloseAsync(CloseTimeout).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                await Task.WhenAny(_sessionTask).ConfigureAwait(false);
+                try
+                {
+                    if (_connection is not null)
+                    {
+                        await _connection.DisposeAsync().ConfigureAwait(false);
+                    }
+                }
+                finally
+                {
+                    _shutdown.Dispose();
+                    _executionSlot.Dispose();
+                }
+            }
         }
     }
 
@@ -218,7 +255,12 @@ internal sealed class RevitUiSession
                 .InjectUiApplicationAsync(options, _shutdown.Token)
                 .ConfigureAwait(false);
 
-            _connection = connection;
+            lock (_startLock)
+            {
+                _connection = connection;
+                _shutdown.Token.ThrowIfCancellationRequested();
+            }
+
             Schedule(connection);
 
             while (await connection.ReceiveAsync(_shutdown.Token).ConfigureAwait(false) is { } message)
@@ -236,9 +278,14 @@ internal sealed class RevitUiSession
 
             Fault(new InvalidOperationException("Revit closed before it reported the test."));
         }
+        catch (OperationCanceledException exception) when (_shutdown.IsCancellationRequested)
+        {
+            Fault(exception);
+        }
         catch (Exception exception)
         {
             Fault(exception);
+            throw;
         }
     }
 

@@ -18,5 +18,10 @@ internal enum RevitUiTestStatus
     /// <summary>
     ///     Reports the test as skipped.
     /// </summary>
-    Skipped
+    Skipped,
+
+    /// <summary>
+    ///     Reports the test as timed out.
+    /// </summary>
+    TimedOut
 }

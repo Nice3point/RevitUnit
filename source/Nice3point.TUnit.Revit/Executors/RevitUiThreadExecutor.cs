@@ -101,6 +101,8 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
 
         RevitUiSession.Get(context.TestContext).Register(context.TestDetails.TestId);
         context.SetParallelLimiter(RevitUiParallelLimit.Default);
+        context.TestDetails.Timeout = Timeout.InfiniteTimeSpan;
+        context.TestDetails.RetryLimit = 0;
         return default;
     }
 

@@ -11,6 +11,7 @@ namespace Nice3point.TUnit.Revit.Ui.Messages;
 [JsonDerivedType(typeof(RevitUiTestSchedule), "schedule")]
 [JsonDerivedType(typeof(RevitUiTestExecution), "execute")]
 [JsonDerivedType(typeof(RevitUiTestCancellation), "cancel")]
+[JsonDerivedType(typeof(RevitUiTestSessionEnd), "end")]
 internal abstract record RevitUiTestCommand
 {
     /// <summary>

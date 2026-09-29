@@ -107,6 +107,9 @@ public sealed class ApplicationTests : RevitApiTest
 }
 ```
 
+Long-running operations use the test's `CancellationToken` for cooperative cancellation.
+Cleanup hooks and subsequent tests wait for the running test body to finish.
+
 ## Document testing
 
 Tests that pass alone but fail together are a classic sign of shared state. Give each test its own document — created in `[Before(Test)]`, closed in `[After(Test)]` — and that problem disappears entirely.
@@ -232,8 +235,10 @@ public sealed class UiDocumentTests : RevitApiUiTest
 }
 ```
 
-A UI test with a `[Timeout]` passes its `CancellationToken` to long-running work.
-The next UI test starts only once the body of the timed-out test returns.
+`[Timeout]` applies to each test body attempt.
+Setup and cleanup hooks run outside that timeout.
+Long-running operations use the test's `CancellationToken` for cooperative cancellation.
+Cleanup hooks and the next UI test wait for the running body to finish.
 
 > [!NOTE]
 > The examples demonstrate basic testing functionality. This library **only adds support for working within the Revit API context**. For comprehensive documentation on assertions, attributes, test configuration, and

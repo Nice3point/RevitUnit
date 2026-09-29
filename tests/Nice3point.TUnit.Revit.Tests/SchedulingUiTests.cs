@@ -16,6 +16,23 @@ public sealed class SchedulingUiTests : RevitApiUiTest
     }
 
     [Test]
+    [Timeout(500)]
+    [Retry(1, BackoffMs = 1_500)]
+    public async Task Retry_BackoffExceedsBodyTimeout_PassesOnTheSecondAttempt(CancellationToken cancellationToken)
+    {
+        // Act
+        var attempt = TestContext.Current!.Execution.CurrentRetryAttempt;
+
+        // Assert
+        using (Assert.Multiple())
+        {
+            await Assert.That(attempt).IsEqualTo(1);
+            await Assert.That(cancellationToken.IsCancellationRequested).IsFalse();
+            await Assert.That(UiApplication.MainWindowHandle).IsNotEqualTo(IntPtr.Zero);
+        }
+    }
+
+    [Test]
     public async Task Delay_LongerThanTheTimeoutOfAnotherTest_Completes()
     {
         // Arrange & Act

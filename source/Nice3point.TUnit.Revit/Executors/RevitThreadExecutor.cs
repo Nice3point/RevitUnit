@@ -9,9 +9,10 @@ namespace Nice3point.TUnit.Revit.Executors;
 ///     Represents the executor that runs tests and hooks on the thread that owns the Revit API.
 /// </summary>
 /// <remarks>
-///     Revit requires every API call to occur on the thread that initialized it.
-///     The executor queues every action onto one process-wide STA thread, and <c>await</c> continuations return to the same thread.
-///     The executor runs one Revit test at a time.
+///     Test bodies and hooks execute on the thread that initialized the Revit API.
+///     Their <c>await</c> continuations resume on the same thread.
+///     Calls from other threads execute sequentially and complete after all awaited work.
+///     Calls from the Revit thread execute directly.
 /// </remarks>
 public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegisteredEventReceiver
 {
@@ -59,6 +60,7 @@ public sealed class RevitThreadExecutor : GenericAbstractExecutor, ITestRegister
 file sealed class RevitDispatcherThread
 {
     private readonly Dispatcher _dispatcher;
+    private readonly SemaphoreSlim _executionLock = new(1, 1);
 
     private RevitDispatcherThread()
     {
@@ -91,14 +93,28 @@ file sealed class RevitDispatcherThread
     public static RevitDispatcherThread Instance { get; } = new();
 
     /// <summary>
-    ///     Queues the specified action on the Revit thread.
+    ///     Executes the specified action on the Revit thread.
     /// </summary>
     /// <param name="action">The action to run on the Revit thread.</param>
     /// <returns>A task that completes once the action and its <c>await</c> continuations finish.</returns>
-    public ValueTask InvokeAsync(Func<ValueTask> action)
+    public async ValueTask InvokeAsync(Func<ValueTask> action)
     {
-        var operation = _dispatcher.InvokeAsync(() => action().AsTask(), DispatcherPriority.Normal);
-        return new ValueTask(operation.Task.Unwrap());
+        if (_dispatcher.CheckAccess())
+        {
+            await action();
+            return;
+        }
+
+        await _executionLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            var operation = _dispatcher.InvokeAsync(() => action().AsTask(), DispatcherPriority.Normal);
+            await operation.Task.Unwrap().ConfigureAwait(false);
+        }
+        finally
+        {
+            _executionLock.Release();
+        }
     }
 
     /// <summary>

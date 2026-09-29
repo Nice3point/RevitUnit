@@ -14,10 +14,11 @@ namespace Nice3point.TUnit.Revit;
 ///     Represents a test class for executing tests within the Revit user interface environment.
 /// </summary>
 /// <remarks>
-///     The Revit user interface environment opens on the first UI test a session executes and closes when the session finishes.
-///     Test bodies and hooks run on the Revit thread inside a Revit API context.
-///     UI tests run one at a time, and the next UI test starts once the body of a timed-out test returns.
-///     Test discovery executes no test and does not start Revit.
+///     One Revit application serves the UI tests of a test session and closes when the session ends.
+///     Test bodies and hooks execute sequentially on the Revit thread inside a Revit API context.
+///     Their <c>await</c> continuations resume in the same context.
+///     A test timeout applies to each body attempt, and cleanup starts after the body completes.
+///     Revit starts on the first UI test execution, and test discovery does not start it.
 /// </remarks>
 [Category(RevitUiRuntime.Category)]
 [TestExecutor<RevitUiThreadExecutor>]

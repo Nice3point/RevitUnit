@@ -14,6 +14,11 @@ internal sealed record RevitUiTestResult : RevitUiTestEvent
     public required RevitUiTestStatus Status { get; init; }
 
     /// <summary>
+    ///     Gets the timeout or <see langword="null" /> when no timeout is configured.
+    /// </summary>
+    public TimeSpan? Timeout { get; init; }
+
+    /// <summary>
     ///     Gets the failure or skip message, or <see langword="null" /> when the test passed.
     /// </summary>
     public string? Message { get; init; }
@@ -92,7 +97,7 @@ internal sealed record RevitUiTestResult : RevitUiTestEvent
             },
             FailedTestNodeStateProperty failed => FromFailure(testId, state, failed.Exception),
             ErrorTestNodeStateProperty error => FromFailure(testId, state, error.Exception),
-            TimeoutTestNodeStateProperty timeout => FromFailure(testId, state, timeout.Exception),
+            TimeoutTestNodeStateProperty timeout => FromFailure(testId, state, timeout.Exception) with { Status = RevitUiTestStatus.TimedOut },
             InProgressTestNodeStateProperty or DiscoveredTestNodeStateProperty => null,
             _ => FromFailure(testId, state, null)
         };

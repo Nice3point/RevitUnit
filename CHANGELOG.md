@@ -1,3 +1,9 @@
+# Unreleased
+
+- Wait for a timed-out or cancelled Revit test body before running cleanup hooks or closing the Revit connection.
+- Exclude UI test hooks and retry delays from the test body timeout.
+- Report UI session cleanup failures even when every test passed.
+
 # 2027.0.6
 
 - Fixed the `Microsoft.Bcl.AsyncInterfaces` and `System.Text.Json` load errors for Revit 2021 to 2024 https://github.com/Nice3point/RevitUnit/issues/122

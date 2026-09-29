@@ -13,7 +13,7 @@ namespace Nice3point.TUnit.Revit.Ui;
 ///     The test host executes the pending tests one at a time, in its own order, and the runtime removes the parallel limit and the parallel constraints of every registered test.
 ///     The runtime reports the result of a test once its body finishes, and the test host executes the next test after that result.
 ///     <see cref="RevitUiTestCancellation" /> cancels the token of an executing test.
-///     The end of the messages of the test host skips every pending test.
+///     Pending tests are skipped when the test host ends the session.
 ///     The members are safe to call from any thread.
 /// </remarks>
 internal sealed class RevitUiApplicationRuntime(RevitUiContext context)
@@ -157,6 +157,13 @@ internal sealed class RevitUiApplicationRuntime(RevitUiContext context)
         lock (_stateLock)
         {
             _testBodies.TryGetValue(result.TestId, out testBody);
+            if (_registeredTests.TryGetValue(result.TestId, out var testContext))
+            {
+                result = result with
+                {
+                    Timeout = testContext.Metadata.TestDetails.Timeout
+                };
+            }
         }
 
         if (testBody is not null)
@@ -169,7 +176,7 @@ internal sealed class RevitUiApplicationRuntime(RevitUiContext context)
     }
 
     /// <summary>
-    ///     Applies the commands of the test host until the connection closes.
+    ///     Applies the commands of the test host until the test session ends.
     /// </summary>
     /// <returns>A task that represents the asynchronous receive operation.</returns>
     public async Task ListenAsync()
@@ -189,6 +196,8 @@ internal sealed class RevitUiApplicationRuntime(RevitUiContext context)
                     case RevitUiTestCancellation cancellation:
                         Cancel(cancellation.TestId);
                         break;
+                    case RevitUiTestSessionEnd:
+                        return;
                 }
             }
         }

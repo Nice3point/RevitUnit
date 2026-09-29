@@ -5,6 +5,17 @@ namespace Nice3point.TUnit.Revit.Tests;
 public sealed class TimeoutUiTests : RevitApiUiTest
 {
     private static DateTimeOffset? _timedOutBodyEnd;
+    private static bool _cleanupObservedCompletedBody;
+
+    [Before(Test)]
+    public void ResetTimedOutBody(TestContext context)
+    {
+        if (context.Metadata.TestDetails.MethodName == nameof(Timeout_BodyIgnoresTheCancellation_TimesOut))
+        {
+            _timedOutBodyEnd = null;
+            _cleanupObservedCompletedBody = false;
+        }
+    }
 
     [Test]
     [Timeout(500)]
@@ -26,5 +37,12 @@ public sealed class TimeoutUiTests : RevitApiUiTest
         // Assert
         var timedOutBodyEnd = await Assert.That(_timedOutBodyEnd).IsNotNull();
         await Assert.That(testStart).IsGreaterThanOrEqualTo(timedOutBodyEnd);
+        await Assert.That(_cleanupObservedCompletedBody).IsTrue();
+    }
+
+    [After(Test)]
+    public void RecordCleanup()
+    {
+        _cleanupObservedCompletedBody = _timedOutBodyEnd is not null;
     }
 }
