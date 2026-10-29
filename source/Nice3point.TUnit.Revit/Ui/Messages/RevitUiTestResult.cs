@@ -99,7 +99,7 @@ internal sealed record RevitUiTestResult : RevitUiTestEvent
             ErrorTestNodeStateProperty error => FromFailure(testId, state, error.Exception),
             TimeoutTestNodeStateProperty timeout => FromFailure(testId, state, timeout.Exception) with { Status = RevitUiTestStatus.TimedOut },
             InProgressTestNodeStateProperty or DiscoveredTestNodeStateProperty => null,
-            _ => FromFailure(testId, state, null)
+            _ => FromFailure(testId, state, exception: null)
         };
     }
 

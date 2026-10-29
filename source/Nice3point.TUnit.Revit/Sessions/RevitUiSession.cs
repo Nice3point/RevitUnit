@@ -69,7 +69,7 @@ internal sealed class RevitUiSession
     /// <param name="testId">The identifier of the registered test.</param>
     public void Register(string testId)
     {
-        _registeredTestIds.TryAdd(testId, 0);
+        _registeredTestIds.TryAdd(testId, value: 0);
     }
 
     /// <summary>
@@ -124,6 +124,7 @@ internal sealed class RevitUiSession
             {
                 TestId = testId
             }.Serialize());
+
             throw;
         }
 

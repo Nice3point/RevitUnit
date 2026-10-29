@@ -16,6 +16,9 @@ namespace Nice3point.TUnit.Revit.Executors;
 public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestRegisteredEventReceiver
 {
     /// <inheritdoc />
+    public int Order => 0;
+
+    /// <inheritdoc />
     public ValueTask ExecuteBeforeTestDiscoveryHook(MethodMetadata hookMethodInfo, BeforeTestDiscoveryContext context, Func<ValueTask> action)
     {
         return InvokeAsync(action);
@@ -86,9 +89,6 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
         var session = RevitUiSession.Get(context);
         return new ValueTask(session.RunTestAsync(context));
     }
-
-    /// <inheritdoc />
-    public int Order => 0;
 
     /// <inheritdoc />
     public ValueTask OnTestRegistered(TestRegisteredContext context)

@@ -106,7 +106,7 @@ public sealed class SessionCompletionTests
                 await process.WaitForExitAsync(CancellationToken.None);
             }
 
-            Directory.Delete(resultsDirectory, true);
+            Directory.Delete(resultsDirectory, recursive: true);
         }
     }
 }
