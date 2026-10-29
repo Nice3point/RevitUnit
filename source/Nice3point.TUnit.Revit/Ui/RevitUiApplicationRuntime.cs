@@ -86,6 +86,32 @@ internal sealed class RevitUiApplicationRuntime(RevitUiContext context)
     }
 
     /// <summary>
+    ///     Waits for the test host to execute any of the specified tests.
+    /// </summary>
+    /// <param name="testIds">The identifiers of the tests.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> used to cancel the wait.</param>
+    /// <returns>A task that represents the asynchronous wait operation.</returns>
+    /// <exception cref="SkipTestException">The test host skipped the pending tests.</exception>
+    /// <remarks>
+    ///     The call sends <see cref="RevitUiTestPending" /> for every test that is not pending yet.
+    ///     A call without tests completes at once.
+    /// </remarks>
+    public async Task WaitForAnyExecutionAsync(IEnumerable<string> testIds, CancellationToken cancellationToken)
+    {
+        var executions = testIds.Select(testId => GetExecution(testId).Task).ToArray();
+        if (executions.Length == 0)
+        {
+            return;
+        }
+
+        var execution = await Task.WhenAny(executions).WaitAsync(cancellationToken).ConfigureAwait(false);
+        if (!await execution.ConfigureAwait(false))
+        {
+            throw new SkipTestException("The test host skipped the pending tests.");
+        }
+    }
+
+    /// <summary>
     ///     Runs the specified test body or hook on the Revit thread inside a Revit API context.
     /// </summary>
     /// <param name="action">The body of the test or the hook.</param>

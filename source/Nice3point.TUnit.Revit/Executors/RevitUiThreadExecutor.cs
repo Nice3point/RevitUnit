@@ -1,4 +1,3 @@
-using Nice3point.TUnit.Revit.Limiters;
 using Nice3point.TUnit.Revit.Sessions;
 using Nice3point.TUnit.Revit.Ui;
 using TUnit.Core.Interfaces;
@@ -10,7 +9,7 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </summary>
 /// <remarks>
 ///     A test body and its hooks run inside a Revit API context, and their <c>await</c> continuations stay on the same thread.
-///     The executor runs one Revit UI test at a time.
+///     The executor runs one Revit UI test at a time, and the test host runs the UI tests class by class.
 ///     The executor supports only tests of a class derived from <see cref="RevitApiUiTest" />.
 /// </remarks>
 public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestRegisteredEventReceiver
@@ -100,10 +99,39 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
         }
 
         RevitUiSession.Get(context.TestContext).Register(context.TestDetails.TestId);
-        context.SetParallelLimiter(RevitUiParallelLimit.Default);
+        AddUiConstraint(context);
         context.TestDetails.Timeout = Timeout.InfiniteTimeSpan;
         context.TestDetails.RetryLimit = 0;
         return default;
+    }
+
+    // TUnit reads only the first NotInParallel constraint of a test, and the UI key joins the keys of an existing one.
+    private static void AddUiConstraint(TestRegisteredContext context)
+    {
+        const string uiConstraintKey = "Nice3point.TUnit.Revit.Ui";
+
+        var parallelism = context.TestContext.Parallelism;
+        var constraints = parallelism.Constraints.ToArray();
+        var notInParallel = constraints.OfType<NotInParallelConstraint>().FirstOrDefault();
+        if (notInParallel is null)
+        {
+            parallelism.AddConstraint(new NotInParallelConstraint([uiConstraintKey]));
+            return;
+        }
+
+        var keys = notInParallel.NotInParallelConstraintKeys;
+        if (keys.Count == 0 || keys.Contains(uiConstraintKey))
+        {
+            return;
+        }
+
+        context.ClearParallelConstraints();
+        foreach (var constraint in constraints)
+        {
+            parallelism.AddConstraint(ReferenceEquals(constraint, notInParallel)
+                ? notInParallel with { NotInParallelConstraintKeys = [.. keys, uiConstraintKey] }
+                : constraint);
+        }
     }
 
     private static ValueTask InvokeAsync(Func<ValueTask> action)
