@@ -10,13 +10,12 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// <remarks>
 ///     A test body and its hooks run inside a Revit API context, and their <c>await</c> continuations stay on the same thread.
 ///     The executor runs one Revit UI test at a time.
-///     The test host runs the UI tests class by class.
 ///     The executor supports only tests of a class derived from <see cref="RevitApiUiTest" />.
 /// </remarks>
 public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestRegisteredEventReceiver
 {
     /// <summary>
-    ///     The <c>NotInParallel</c> key every UI test in the test host shares.
+    ///     The <c>NotInParallel</c> key of every UI test in the test host.
     /// </summary>
     private const string UiConstraintKey = "Nice3point.TUnit.Revit.Ui";
 
@@ -117,8 +116,8 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
     /// <param name="context">The registration context of the test.</param>
     /// <remarks>
     ///     TUnit reads only the first <see cref="NotInParallelConstraint" /> of a test.
-    ///     The key joins the keys of a constraint the test declares.
-    ///     The method leaves a constraint without keys unchanged: that constraint runs the test alone.
+    ///     The method adds the key to the keys of a constraint the test declares.
+    ///     The method does not change a constraint without keys: TUnit runs such a test alone.
     /// </remarks>
     private static void AddUiConstraint(TestRegisteredContext context)
     {
