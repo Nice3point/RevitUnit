@@ -14,6 +14,11 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </remarks>
 public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestRegisteredEventReceiver
 {
+    /// <summary>
+    ///     The <c>NotInParallel</c> key every UI test in the test host shares.
+    /// </summary>
+    private const string UiConstraintKey = "Nice3point.TUnit.Revit.Ui";
+
     /// <inheritdoc />
     public int Order => 0;
 
@@ -105,22 +110,27 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
         return default;
     }
 
-    // TUnit reads only the first NotInParallel constraint of a test, and the UI key joins the keys of an existing one.
+    /// <summary>
+    ///     Adds the <see cref="UiConstraintKey" /> to the <see cref="NotInParallelConstraint" /> of the specified test.
+    /// </summary>
+    /// <param name="context">The registration context of the test.</param>
+    /// <remarks>
+    ///     TUnit reads only the first <see cref="NotInParallelConstraint" /> of a test, and the key joins the keys of a constraint the test declares.
+    ///     A constraint without keys runs the test alone, and the method leaves it unchanged.
+    /// </remarks>
     private static void AddUiConstraint(TestRegisteredContext context)
     {
-        const string uiConstraintKey = "Nice3point.TUnit.Revit.Ui";
-
         var parallelism = context.TestContext.Parallelism;
         var constraints = parallelism.Constraints.ToArray();
         var notInParallel = constraints.OfType<NotInParallelConstraint>().FirstOrDefault();
         if (notInParallel is null)
         {
-            parallelism.AddConstraint(new NotInParallelConstraint([uiConstraintKey]));
+            parallelism.AddConstraint(new NotInParallelConstraint([UiConstraintKey]));
             return;
         }
 
         var keys = notInParallel.NotInParallelConstraintKeys;
-        if (keys.Count == 0 || keys.Contains(uiConstraintKey))
+        if (keys.Count == 0 || keys.Contains(UiConstraintKey))
         {
             return;
         }
@@ -129,7 +139,7 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
         foreach (var constraint in constraints)
         {
             parallelism.AddConstraint(ReferenceEquals(constraint, notInParallel)
-                ? notInParallel with { NotInParallelConstraintKeys = [.. keys, uiConstraintKey] }
+                ? notInParallel with { NotInParallelConstraintKeys = [.. keys, UiConstraintKey] }
                 : constraint);
         }
     }

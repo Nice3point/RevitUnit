@@ -21,12 +21,12 @@ The UI tests of a class run one after another https://github.com/Nice3point/Revi
   The documents a class opens in its hooks stay open only while the tests of that class run.
 - The timeout of a `[Before(Class)]` hook covers only the hook.
 - The duration of the first test of a class includes its `[Before(Class)]` hooks.
-- UI tests waiting for their turn leave the parallel slots to other tests.
+- A UI test waiting for its turn holds no parallel slot, and `RevitApiTest` tests run meanwhile.
 
 ## Bug fixes
 
 - Fixed `[Before(Class)]` and `[After(Class)]` hooks of `RevitApiTest` and `RevitApiUiTest` classes running outside the Revit thread on Revit 2021 to 2024.
-- Fixed the test host crash when `--fail-fast` stops a run with UI tests. TUnit is updated to 1.76.45.
+- Fixed the test host crash when `--fail-fast` stops a run with UI tests: the package depends on TUnit 1.76.45.
 
 # 2027.0.7
 

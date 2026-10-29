@@ -6,8 +6,30 @@ public abstract class ClassLifetimeUiTest : RevitApiUiTest
     private static readonly Dictionary<Type, Type?> ClassesOpenAtSetup = [];
     private static Type? _openClass;
 
+    protected static Type? OpenClass
+    {
+        get
+        {
+            lock (StateLock)
+            {
+                return _openClass;
+            }
+        }
+    }
+
+    protected Type? ClassOpenAtSetup
+    {
+        get
+        {
+            lock (StateLock)
+            {
+                return ClassesOpenAtSetup[GetType()];
+            }
+        }
+    }
+
     [Before(Class)]
-    public static void OpenClass(ClassHookContext context)
+    public static void OpenTestClass(ClassHookContext context)
     {
         lock (StateLock)
         {
@@ -17,7 +39,7 @@ public abstract class ClassLifetimeUiTest : RevitApiUiTest
     }
 
     [After(Class)]
-    public static void CloseClass(ClassHookContext context)
+    public static void CloseTestClass(ClassHookContext context)
     {
         lock (StateLock)
         {
@@ -25,23 +47,6 @@ public abstract class ClassLifetimeUiTest : RevitApiUiTest
             {
                 _openClass = null;
             }
-        }
-    }
-
-    protected async Task AssertClassRunsAloneAsync()
-    {
-        Type? openClass;
-        Type? classOpenAtSetup;
-        lock (StateLock)
-        {
-            openClass = _openClass;
-            classOpenAtSetup = ClassesOpenAtSetup[GetType()];
-        }
-
-        using (Assert.Multiple())
-        {
-            await Assert.That(classOpenAtSetup).IsNull();
-            await Assert.That(openClass).IsEqualTo(GetType());
         }
     }
 }

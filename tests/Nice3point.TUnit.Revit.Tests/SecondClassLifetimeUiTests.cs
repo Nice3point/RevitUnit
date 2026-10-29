@@ -6,8 +6,17 @@ public sealed class SecondClassLifetimeUiTests : ClassLifetimeUiTest
 {
     [Test]
     [Repeat(2)]
-    public Task ClassHooks_AnotherUiClass_DoNotOverlap()
+    public async Task ClassHooks_AnotherUiClass_DoNotOverlap()
     {
-        return AssertClassRunsAloneAsync();
+        // Arrange & Act
+        var openClass = OpenClass;
+        var classOpenAtSetup = ClassOpenAtSetup;
+
+        // Assert
+        using (Assert.Multiple())
+        {
+            await Assert.That(classOpenAtSetup).IsNull();
+            await Assert.That(openClass).IsEqualTo(typeof(SecondClassLifetimeUiTests));
+        }
     }
 }
