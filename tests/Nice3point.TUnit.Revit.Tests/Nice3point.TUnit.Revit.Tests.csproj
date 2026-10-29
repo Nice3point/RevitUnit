@@ -15,6 +15,11 @@
         <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitLanguageAttribute">
             <_Parameter1>$(RevitLanguage)</_Parameter1>
         </AssemblyAttribute>
+        <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitClientAttribute">
+            <Id>B3E7F5A2-9C4D-4E81-A6F0-2D8C51E7B934</Id>
+            <Name>Nice3point.TUnit.Revit.Tests</Name>
+            <VendorId>Nice3point</VendorId>
+        </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup>

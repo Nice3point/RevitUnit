@@ -250,7 +250,7 @@ More examples, including parametrized model and family tests, are available in t
 
 ### Revit Environment
 
-TUnit initializes Revit with the `English - United States` language and the `C:\Program Files\Autodesk\Revit {version}` installation path. To override these defaults:
+TUnit initializes Revit with the `English - United States` language, the `C:\Program Files\Autodesk\Revit {version}` installation path, and an add-in with a random ID. To override these defaults:
 
 - Add the assembly-level attributes to any .cs file in your project (e.g., TestsConfiguration.cs):
 
@@ -258,7 +258,8 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
     using Nice3point.Revit.Injector.Attributes;
 
     [assembly: RevitLanguage("ENU")]
-    [assembly: RevitInstallationPath("D:\Autodesk\Revit Preview")]
+    [assembly: RevitInstallationPath(@"D:\Autodesk\Revit Preview")]
+    [assembly: RevitClient(Id = "B3E7F5A2-9C4D-4E81-A6F0-2D8C51E7B934", Name = "Tests", VendorId = "Contoso")]
     ```
 
 - Or add the attributes directly to your .csproj file:
@@ -275,8 +276,17 @@ TUnit initializes Revit with the `English - United States` language and the `C:\
             <_Parameter1>D:\Autodesk\Revit $(RevitVersion)</_Parameter1>
         </AssemblyAttribute>
 
+        <AssemblyAttribute Include="Nice3point.Revit.Injector.Attributes.RevitClientAttribute">
+            <Id>B3E7F5A2-9C4D-4E81-A6F0-2D8C51E7B934</Id>
+            <Name>Tests</Name>
+            <VendorId>Contoso</VendorId>
+        </AssemblyAttribute>
+
     </ItemGroup>
     ```
 
 The `RevitLanguage` attribute accepts a [language](https://help.autodesk.com/view/RVT/2026/ENU/?guid=GUID-BD09C1B4-5520-475D-BE7E-773642EEBD6C) name (e.g., "English - United States"), code (e.g., "ENU")
 or [LanguageType](https://www.revitapidocs.com/2026/dfda33cf-cbff-9fde-6672-38402e87510f.htm) enum value (e.g., "English_GB" or "15").
+
+The `RevitClient` attribute sets the add-in that Revit attributes every API call of the tests to, and `ActiveAddInId` of `Application` and `UiApplication` returns it.
+Each property is optional, `Id` accepts any format `Guid` accepts, `VendorId` must match the vendor of an Extensible Storage schema the tests write with vendor access.
