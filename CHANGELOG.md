@@ -17,11 +17,12 @@ Each property is optional: `Id` defaults to a random GUID, `Name` to the ID in u
 
 The UI tests of a class run one after another https://github.com/Nice3point/RevitUnit/issues/132:
 
-- `[Before(Class)]` of a `RevitApiUiTest` class runs right before the first test of the class, and `[After(Class)]` right after the last.
+- `[Before(Class)]` of a `RevitApiUiTest` class runs right before the first test of the class.
+- `[After(Class)]` runs right after the last test of the class.
   The documents a class opens in its hooks stay open only while the tests of that class run.
 - The timeout of a `[Before(Class)]` hook covers only the hook.
 - The duration of the first test of a class includes its `[Before(Class)]` hooks.
-- A UI test waiting for its turn holds no parallel slot, and `RevitApiTest` tests run meanwhile.
+- A UI test waiting for its turn holds no parallel slot.
 
 ## Bug fixes
 

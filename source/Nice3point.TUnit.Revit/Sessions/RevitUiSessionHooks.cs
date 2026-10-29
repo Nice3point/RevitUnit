@@ -26,11 +26,12 @@ internal static class RevitUiSessionHooks
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> used to cancel the wait.</param>
     /// <returns>A task that represents the asynchronous wait operation.</returns>
     /// <remarks>
-    ///     TUnit runs the hook before the <c>[Before(Class)]</c> hooks of the class, and the timeout of a <c>[Before(Class)]</c> hook excludes the wait.
+    ///     TUnit runs the hook before the <c>[Before(Class)]</c> hooks of the class.
+    ///     The timeout of a <c>[Before(Class)]</c> hook excludes the wait.
     ///     The hook returns at once in the test host process and for a class not derived from <see cref="RevitApiUiTest" />.
     /// </remarks>
-    [BeforeEvery(Class, Order = int.MinValue)]
     [Timeout(int.MaxValue)]
+    [BeforeEvery(Class, Order = int.MinValue)]
     public static Task RevitUiClassSetup(ClassHookContext context, CancellationToken cancellationToken)
     {
         if (RevitUiRuntime.Application is not { } runtime || !typeof(RevitApiUiTest).IsAssignableFrom(context.ClassType))
