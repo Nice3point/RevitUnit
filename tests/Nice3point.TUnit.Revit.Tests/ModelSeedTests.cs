@@ -17,24 +17,24 @@ public sealed class ModelSeedTests : RevitApiTest
 
         _levels =
         [
-            Level.Create(_document, 0),
-            Level.Create(_document, 3),
-            Level.Create(_document, 6)
+            Level.Create(_document, elevation: 0),
+            Level.Create(_document, elevation: 3),
+            Level.Create(_document, elevation: 6)
         ];
 
         _exteriorWalls =
         [
-            Wall.Create(_document, Line.CreateBound(new XYZ(0, 0, 0), new XYZ(10, 0, 0)), _levels[0].Id, false),
-            Wall.Create(_document, Line.CreateBound(new XYZ(10, 0, 0), new XYZ(10, 6, 0)), _levels[0].Id, false),
-            Wall.Create(_document, Line.CreateBound(new XYZ(10, 6, 0), new XYZ(0, 6, 0)), _levels[0].Id, false),
-            Wall.Create(_document, Line.CreateBound(new XYZ(0, 6, 0), new XYZ(0, 0, 0)), _levels[0].Id, false)
+            Wall.Create(_document, Line.CreateBound(new XYZ(x: 0, y: 0, z: 0), new XYZ(x: 10, y: 0, z: 0)), _levels[0].Id, structural: false),
+            Wall.Create(_document, Line.CreateBound(new XYZ(x: 10, y: 0, z: 0), new XYZ(x: 10, y: 6, z: 0)), _levels[0].Id, structural: false),
+            Wall.Create(_document, Line.CreateBound(new XYZ(x: 10, y: 6, z: 0), new XYZ(x: 0, y: 6, z: 0)), _levels[0].Id, structural: false),
+            Wall.Create(_document, Line.CreateBound(new XYZ(x: 0, y: 6, z: 0), new XYZ(x: 0, y: 0, z: 0)), _levels[0].Id, structural: false)
         ];
 
         _grids =
         [
-            Grid.Create(_document, Line.CreateBound(new XYZ(0, -1, 0), new XYZ(0, 7, 0))),
-            Grid.Create(_document, Line.CreateBound(new XYZ(5, -1, 0), new XYZ(5, 7, 0))),
-            Grid.Create(_document, Line.CreateBound(new XYZ(10, -1, 0), new XYZ(10, 7, 0)))
+            Grid.Create(_document, Line.CreateBound(new XYZ(x: 0, y: -1, z: 0), new XYZ(x: 0, y: 7, z: 0))),
+            Grid.Create(_document, Line.CreateBound(new XYZ(x: 5, y: -1, z: 0), new XYZ(x: 5, y: 7, z: 0))),
+            Grid.Create(_document, Line.CreateBound(new XYZ(x: 10, y: -1, z: 0), new XYZ(x: 10, y: 7, z: 0)))
         ];
 
         _levels[0].Name = "Ground Floor";
