@@ -22,7 +22,12 @@ namespace Nice3point.TUnit.Revit;
 /// </remarks>
 [Category(RevitUiRuntime.Category)]
 [TestExecutor<RevitUiThreadExecutor>]
+#if NET
 [HookExecutor<RevitUiThreadExecutor>]
+#else
+// On .NET Framework, TUnit ignores a generic hook executor attribute of a class.
+[HookExecutor(typeof(RevitUiThreadExecutor))]
+#endif
 public abstract class RevitApiUiTest : ITestStartEventReceiver, ITestEndEventReceiver
 {
     /// <inheritdoc cref="Autodesk.Revit.UI.UIApplication" />

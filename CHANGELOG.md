@@ -13,6 +13,22 @@ using Nice3point.Revit.Injector.Attributes;
 `Application.ActiveAddInId` in `RevitApiTest` and `UiApplication.ActiveAddInId` in `RevitApiUiTest` return the declared add-in.
 Each property is optional: `Id` defaults to a random GUID, `Name` to the ID in uppercase, and `VendorId` to `Autodesk`.
 
+## UI test order
+
+The UI tests of a class run one after another https://github.com/Nice3point/RevitUnit/issues/132:
+
+- `[Before(Class)]` of a `RevitApiUiTest` class runs right before the first test of the class.
+- `[After(Class)]` runs right after the last test of the class.
+  A document that a class opens in `[Before(Class)]` and closes in `[After(Class)]` is open only during the tests of that class.
+- The timeout of a `[Before(Class)]` hook excludes the wait for the tests of other classes.
+- The duration of the first test of a class includes its `[Before(Class)]` hooks.
+- A UI test that waits for its turn occupies no parallel slot.
+
+## Bug fixes
+
+- Fixed `[Before(Class)]` and `[After(Class)]` hooks of `RevitApiTest` and `RevitApiUiTest` classes running outside the Revit thread on Revit 2021 to 2024.
+- Fixed the test host crash when `--fail-fast` stops a run with UI tests: the package depends on TUnit 1.76.45.
+
 # 2027.0.7
 
 - `RevitApiTest` waits for a timed-out or cancelled test body to finish before running cleanup hooks, starting another test, or closing the Revit connection.

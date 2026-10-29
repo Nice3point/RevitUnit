@@ -1,4 +1,3 @@
-using Nice3point.TUnit.Revit.Limiters;
 using Nice3point.TUnit.Revit.Sessions;
 using Nice3point.TUnit.Revit.Ui;
 using TUnit.Core.Interfaces;
@@ -15,6 +14,11 @@ namespace Nice3point.TUnit.Revit.Executors;
 /// </remarks>
 public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestRegisteredEventReceiver
 {
+    /// <summary>
+    ///     The <c>NotInParallel</c> key of every UI test in the test host.
+    /// </summary>
+    private const string UiConstraintKey = "Nice3point.TUnit.Revit.Ui";
+
     /// <inheritdoc />
     public int Order => 0;
 
@@ -100,10 +104,45 @@ public sealed class RevitUiThreadExecutor : ITestExecutor, IHookExecutor, ITestR
         }
 
         RevitUiSession.Get(context.TestContext).Register(context.TestDetails.TestId);
-        context.SetParallelLimiter(RevitUiParallelLimit.Default);
+        AddUiConstraint(context);
         context.TestDetails.Timeout = Timeout.InfiniteTimeSpan;
         context.TestDetails.RetryLimit = 0;
         return default;
+    }
+
+    /// <summary>
+    ///     Adds the <see cref="UiConstraintKey" /> to the <see cref="NotInParallelConstraint" /> of the specified test.
+    /// </summary>
+    /// <param name="context">The registration context of the test.</param>
+    /// <remarks>
+    ///     TUnit reads only the first <see cref="NotInParallelConstraint" /> of a test.
+    ///     The method adds the key to the keys of a constraint the test declares.
+    ///     The method does not change a constraint without keys: TUnit runs such a test alone.
+    /// </remarks>
+    private static void AddUiConstraint(TestRegisteredContext context)
+    {
+        var parallelism = context.TestContext.Parallelism;
+        var constraints = parallelism.Constraints.ToArray();
+        var notInParallel = constraints.OfType<NotInParallelConstraint>().FirstOrDefault();
+        if (notInParallel is null)
+        {
+            parallelism.AddConstraint(new NotInParallelConstraint([UiConstraintKey]));
+            return;
+        }
+
+        var keys = notInParallel.NotInParallelConstraintKeys;
+        if (keys.Count == 0 || keys.Contains(UiConstraintKey))
+        {
+            return;
+        }
+
+        context.ClearParallelConstraints();
+        foreach (var constraint in constraints)
+        {
+            parallelism.AddConstraint(ReferenceEquals(constraint, notInParallel)
+                ? notInParallel with { NotInParallelConstraintKeys = [.. keys, UiConstraintKey] }
+                : constraint);
+        }
     }
 
     private static ValueTask InvokeAsync(Func<ValueTask> action)
