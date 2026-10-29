@@ -13,6 +13,10 @@ using Nice3point.Revit.Injector.Attributes;
 `Application.ActiveAddInId` in `RevitApiTest` and `UiApplication.ActiveAddInId` in `RevitApiUiTest` return the declared add-in.
 Each property is optional: `Id` defaults to a random GUID, `Name` to the ID in uppercase, and `VendorId` to `Autodesk`.
 
+## Bug fixes
+
+- Fixed `[Before(Class)]` and `[After(Class)]` hooks of `RevitApiTest` and `RevitApiUiTest` classes running outside the Revit thread on Revit 2021 to 2024.
+
 # 2027.0.7
 
 - `RevitApiTest` waits for a timed-out or cancelled test body to finish before running cleanup hooks, starting another test, or closing the Revit connection.

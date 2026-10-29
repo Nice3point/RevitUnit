@@ -15,7 +15,12 @@ namespace Nice3point.TUnit.Revit;
 ///     Test discovery executes no test and does not start Revit.
 /// </remarks>
 [TestExecutor<RevitThreadExecutor>]
+#if NET
 [HookExecutor<RevitThreadExecutor>]
+#else
+// On .NET Framework, TUnit ignores a generic hook executor attribute of a class.
+[HookExecutor(typeof(RevitThreadExecutor))]
+#endif
 public abstract class RevitApiTest
 {
     /// <inheritdoc cref="Autodesk.Revit.ApplicationServices.Application" />
