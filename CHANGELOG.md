@@ -1,3 +1,18 @@
+# 2027.0.8
+
+## Revit client configuration
+
+Tests run as the Revit add-in the `RevitClient` assembly attribute declares https://github.com/Nice3point/RevitUnit/issues/129:
+
+```csharp
+using Nice3point.Revit.Injector.Attributes;
+
+[assembly: RevitClient(Id = "B3E7F5A2-9C4D-4E81-A6F0-2D8C51E7B934", Name = "Tests", VendorId = "Contoso")]
+```
+
+`Application.ActiveAddInId` in `RevitApiTest` and `UiApplication.ActiveAddInId` in `RevitApiUiTest` return the declared add-in.
+Each property is optional: `Id` defaults to a random GUID, `Name` to the ID in uppercase, and `VendorId` to `Autodesk`.
+
 # 2027.0.7
 
 - `RevitApiTest` waits for a timed-out or cancelled test body to finish before running cleanup hooks, starting another test, or closing the Revit connection.

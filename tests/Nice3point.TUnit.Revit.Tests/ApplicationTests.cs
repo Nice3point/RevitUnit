@@ -25,6 +25,20 @@ public sealed class ApplicationTests : RevitApiTest
     }
 
     [Test]
+    public async Task ActiveAddInId_DeclaredClient_ReturnsTheDeclaredAddIn()
+    {
+        // Arrange & Act
+        var addInId = Application.ActiveAddInId;
+
+        // Assert
+        using (Assert.Multiple())
+        {
+            await Assert.That(addInId.GetGUID()).IsEqualTo(Guid.Parse("B3E7F5A2-9C4D-4E81-A6F0-2D8C51E7B934"));
+            await Assert.That(addInId.GetAddInName()).IsEqualTo("Nice3point.TUnit.Revit.Tests");
+        }
+    }
+
+    [Test]
     public async Task RevitSessionSetup_OffTheRevitThread_ThrowsInvalidOperationException()
     {
         // Arrange
