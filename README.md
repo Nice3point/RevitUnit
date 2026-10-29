@@ -226,9 +226,6 @@ public sealed class UiDocumentTests : RevitApiUiTest
 ```
 
 UI tests run one at a time, in parallel with `RevitApiTest` tests.
-The UI tests of a class run one after another.
-`[Before(Class)]` runs right before the first of them.
-`[After(Class)]` runs right after the last.
 To run them in one queue with `RevitApiTest` tests, mark the class with `[ParallelLimiter<RevitParallelLimit>]`:
 
 ```csharp
