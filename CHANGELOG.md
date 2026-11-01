@@ -1,3 +1,10 @@
+# 2027.0.9
+
+## Bug fixes
+
+- Fixed Revit opening in a small window in a corner of the screen after a run of `RevitApiUiTest` tests https://github.com/Nice3point/RevitUnit/issues/135.
+  Revit opens its window at the position, the size, and the maximized state it had before the run.
+
 # 2027.0.8
 
 ## Revit client configuration
