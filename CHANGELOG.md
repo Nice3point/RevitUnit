@@ -4,6 +4,7 @@
 
 - Fixed Revit opening in a small window in a corner of the screen after a run of `RevitApiUiTest` tests https://github.com/Nice3point/RevitUnit/issues/135.
   Revit opens its window at the position, the size, and the maximized state it had before the run.
+- Fixed the test process crash with `0xC0000409` or `0xC0000005` after a `RevitApiTest` opens a workshared model https://github.com/Nice3point/RevitUnit/issues/136.
 
 # 2027.0.8
 
