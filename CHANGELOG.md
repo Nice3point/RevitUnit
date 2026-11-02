@@ -1,3 +1,10 @@
+# 2027.0.11
+
+## Bug fixes
+
+- Fixed `RevitApiUiTest` sessions exiting before the first test with `MissingMethodException` for `TUnit.Core.Context.get_Activity()` on Revit 2025 https://github.com/Nice3point/RevitUnit/issues/141.
+  Client assemblies and their dependencies load together inside Revit, including test projects that ship `System.Diagnostics.DiagnosticSource` 10.0 on .NET 8.
+
 # 2027.0.10
 
 ## Bug fixes
